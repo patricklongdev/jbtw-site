@@ -2,9 +2,17 @@
 import { getCollection } from 'astro:content';
 
 const allChapters = await getCollection('chapters');
-const chapters = allChapters
-  .filter(c => c.data.book === 'prisoners-of-isolation')
-  .sort((a, b) => a.data.chapter_number - b.data.chapter_number);
+
+// Deduplicate by chapter_slug — keep lowest chapter_number per slug
+const seen = new Map<string, typeof allChapters[0]>();
+for (const c of allChapters) {
+  if (c.data.book !== 'prisoners-of-isolation' || !c.data.chapter_slug) continue;
+  const existing = seen.get(c.data.chapter_slug);
+  if (!existing || (c.data.chapter_number ?? 999) < (existing.data.chapter_number ?? 999)) {
+    seen.set(c.data.chapter_slug, c);
+  }
+}
+const chapters = [...seen.values()].sort((a, b) => (a.data.chapter_number ?? 0) - (b.data.chapter_number ?? 0));
 ---
 
 <!doctype html>

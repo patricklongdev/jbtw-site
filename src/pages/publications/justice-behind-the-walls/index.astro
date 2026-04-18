@@ -2,14 +2,24 @@
 import { getCollection } from 'astro:content';
 
 const allChapters = await getCollection('chapters');
-const chapters = allChapters
-  .filter(c => c.data.book === 'justice-behind-the-walls')
-  .sort((a, b) => {
-    const sA = a.data.sector_number ?? 0;
-    const sB = b.data.sector_number ?? 0;
-    if (sA !== sB) return sA - sB;
-    return a.data.chapter_number - b.data.chapter_number;
-  });
+
+// Deduplicate by chapter_slug — keep lowest chapter_number per slug within each sector
+const seen = new Map<string, typeof allChapters[0]>();
+for (const c of allChapters) {
+  if (c.data.book !== 'justice-behind-the-walls' || !c.data.chapter_slug) continue;
+  const key = `${c.data.sector_number}-${c.data.chapter_slug}`;
+  const existing = seen.get(key);
+  if (!existing || (c.data.chapter_number ?? 999) < (existing.data.chapter_number ?? 999)) {
+    seen.set(key, c);
+  }
+}
+
+const chapters = [...seen.values()].sort((a, b) => {
+  const sA = a.data.sector_number ?? 0;
+  const sB = b.data.sector_number ?? 0;
+  if (sA !== sB) return sA - sB;
+  return (a.data.chapter_number ?? 0) - (b.data.chapter_number ?? 0);
+});
 
 const bySector = chapters.reduce<Record<string, typeof chapters>>((acc, c) => {
   const key = c.data.sector ?? 'Other';
