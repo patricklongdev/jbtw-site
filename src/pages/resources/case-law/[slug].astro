@@ -1,0 +1,23 @@
+---
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  // Populated once case-law MDX files are added to src/content/case-law/
+  return [];
+}
+
+const { slug } = Astro.params;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Case Law</title>
+  </head>
+  <body>
+    <main>
+      <p>Case law content coming soon.</p>
+    </main>
+  </body>
+</html>

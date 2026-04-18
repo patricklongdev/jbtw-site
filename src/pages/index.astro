@@ -1,0 +1,25 @@
+---
+const publications = [
+  { title: 'Justice Behind the Walls', href: '/publications/justice-behind-the-walls/index/' },
+  { title: 'Prisoners of Isolation', href: '/publications/prisoners-of-isolation/index/' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Justice Behind the Walls</title>
+  </head>
+  <body>
+    <main>
+      <h1>Publications</h1>
+      <ul>
+        {publications.map(p => (
+          <li><a href={p.href}>{p.title}</a></li>
+        ))}
+      </ul>
+    </main>
+  </body>
+</html>

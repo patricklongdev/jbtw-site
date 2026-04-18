@@ -1,0 +1,43 @@
+---
+interface Props {
+  frontmatter: {
+    title: string;
+    book: string;
+    sector?: string | null;
+    chapter: string;
+    breadcrumb: string[];
+    has_footnotes: boolean;
+  };
+}
+
+const { frontmatter } = Astro.props;
+const { title, breadcrumb } = frontmatter;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  </head>
+  <body>
+    <header>
+      <div id="search"></div>
+      <nav aria-label="Breadcrumb">
+        <ol>
+          {breadcrumb.map(crumb => <li>{crumb}</li>)}
+        </ol>
+      </nav>
+    </header>
+    <main data-pagefind-body>
+      <h1>{title}</h1>
+      <slot />
+    </main>
+    <script src="/pagefind/pagefind-ui.js" is:inline></script>
+    <script is:inline>
+      new PagefindUI({ element: '#search', showSubResults: true });
+    </script>
+  </body>
+</html>

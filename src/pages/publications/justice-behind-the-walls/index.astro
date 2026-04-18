@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+
+const allChapters = await getCollection('chapters');
+const chapters = allChapters
+  .filter(c => c.data.book === 'justice-behind-the-walls')
+  .sort((a, b) => {
+    const sA = a.data.sector_number ?? 0;
+    const sB = b.data.sector_number ?? 0;
+    if (sA !== sB) return sA - sB;
+    return a.data.chapter_number - b.data.chapter_number;
+  });
+
+const bySector = chapters.reduce<Record<string, typeof chapters>>((acc, c) => {
+  const key = c.data.sector ?? 'Other';
+  (acc[key] ??= []).push(c);
+  return acc;
+}, {});
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Justice Behind the Walls</title>
+  </head>
+  <body>
+    <main>
+      <h1>Justice Behind the Walls</h1>
+      {Object.entries(bySector).map(([sector, cs]) => (
+        <section>
+          <h2>{sector}</h2>
+          <ol>
+            {cs.map(c => (
+              <li>
+                <a href={`/publications/justice-behind-the-walls/sector-${c.data.sector_number}/chapter-${c.data.chapter_slug}/`}>
+                  {c.data.chapter}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </main>
+  </body>
+</html>

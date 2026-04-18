@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+
+const allChapters = await getCollection('chapters');
+const chapters = allChapters
+  .filter(c => c.data.book === 'prisoners-of-isolation')
+  .sort((a, b) => a.data.chapter_number - b.data.chapter_number);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prisoners of Isolation</title>
+  </head>
+  <body>
+    <main>
+      <h1>Prisoners of Isolation: Solitary Confinement in Canada</h1>
+      <ol>
+        {chapters.map(c => (
+          <li>
+            <a href={`/publications/prisoners-of-isolation/chapter-${c.data.chapter_slug}/`}>
+              {c.data.chapter}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </main>
+  </body>
+</html>
