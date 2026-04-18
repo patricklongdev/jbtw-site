@@ -18,15 +18,31 @@ const files = await readdir(SOURCE).catch(() => {
   process.exit(0);
 });
 
+const HTML_TAGS = new Set([
+  'a','abbr','address','area','article','aside','audio','b','base','bdi','bdo',
+  'blockquote','body','br','button','canvas','caption','cite','code','col',
+  'colgroup','data','datalist','dd','del','details','dfn','dialog','div','dl',
+  'dt','em','embed','fieldset','figcaption','figure','footer','form','h1','h2',
+  'h3','h4','h5','h6','head','header','hr','html','i','iframe','img','input',
+  'ins','kbd','label','legend','li','link','main','map','mark','menu','meta',
+  'meter','nav','noscript','object','ol','optgroup','option','output','p',
+  'picture','pre','progress','q','rp','rt','ruby','s','samp','script','section',
+  'select','small','source','span','strong','style','sub','summary','sup',
+  'table','tbody','td','template','textarea','tfoot','th','thead','time',
+  'title','tr','track','u','ul','var','video','wbr',
+]);
+
 function sanitizeMdx(content) {
-  // Split off frontmatter so we don't touch YAML
   const fmMatch = content.match(/^(---\n[\s\S]*?\n---\n)([\s\S]*)$/);
   if (!fmMatch) return content;
   const [, frontmatter, body] = fmMatch;
 
-  // Escape `<` that appear mid-word (OCR artifacts like `fO<xl`).
-  // Real HTML/JSX tags always have `<` at a word boundary.
-  const sanitized = body.replace(/([A-Za-z0-9])<(?=[A-Za-z])/g, '$1&lt;');
+  // Escape `<` that appear mid-word only when NOT followed by a known HTML tag.
+  // This catches OCR artifacts (fO<xl) but preserves real tags (behaviour<sup>).
+  const sanitized = body.replace(/([A-Za-z0-9])<([A-Za-z][A-Za-z0-9]*)/g, (match, pre, tagName) => {
+    if (HTML_TAGS.has(tagName.toLowerCase())) return match;
+    return `${pre}&lt;${tagName}`;
+  });
 
   return frontmatter + sanitized;
 }
