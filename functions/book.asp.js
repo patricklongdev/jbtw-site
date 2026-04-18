@@ -216,8 +216,8 @@ const CID_MAP = {
   "260": "/publications/justice-behind-the-walls/sector-6/chapter-the-ccra-five-year-review/",
   "261": "/publications/justice-behind-the-walls/sector-6/chapter-judicial-review-the-residual-role-of-the-courts/",
   "262": "/publications/justice-behind-the-walls/sector-6/chapter-lawyers-dream-or-correctional-administrators-nightmare/",
-  "762": "/publications/prisoners-of-isolation/chapter-null/",
-  "763": "/publications/prisoners-of-isolation/chapter-null/",
+  "762": "/publications/prisoners-of-isolation/chapter-preface/",
+  "763": "/publications/prisoners-of-isolation/chapter-preface/",
   "765": "/publications/prisoners-of-isolation/chapter-solitary-confinement-and-the-rise-of-the-penitentiary/",
   "766": "/publications/prisoners-of-isolation/chapter-null/",
   "767": "/publications/prisoners-of-isolation/chapter-the-evolution-of-penitentiary-discipline-in-canada/",
@@ -243,7 +243,7 @@ const CID_MAP = {
   "793": "/publications/prisoners-of-isolation/chapter-a-model-for-reform/",
   "794": "/publications/prisoners-of-isolation/chapter-a-model-for-reform/",
   "796": "/publications/prisoners-of-isolation/chapter-the-case-for-entrenchment-of-prisoners-rights/",
-  "807": "/publications/prisoners-of-isolation/chapter-null/",
+  "807": "/publications/prisoners-of-isolation/chapter-solitary-confinement-in-the-age-of-corrections-cruel-and-unusual-punishment-in-the-twentieth-century/",
   "808": "/publications/prisoners-of-isolation/chapter-mccann-v-the-queen-the-structure-of-the-legal-argument/",
   "809": "/publications/prisoners-of-isolation/chapter-a-model-for-reform/"
 };

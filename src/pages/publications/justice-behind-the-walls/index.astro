@@ -3,29 +3,50 @@ import { getCollection } from 'astro:content';
 
 const allChapters = await getCollection('chapters');
 
-// Deduplicate by chapter_slug — keep lowest chapter_number per slug within each sector
+// ── Chapters grouped by sector (Sectors 1–6 only) ────────────────────────────
 const seen = new Map<string, typeof allChapters[0]>();
 for (const c of allChapters) {
-  if (c.data.book !== 'justice-behind-the-walls' || !c.data.chapter_slug) continue;
+  if (
+    c.data.book !== 'justice-behind-the-walls' ||
+    !c.data.chapter_slug ||
+    c.data.sector_number == null ||
+    !c.data.subsection_slug
+  ) continue;
   const key = `${c.data.sector_number}-${c.data.chapter_slug}`;
   const existing = seen.get(key);
   if (!existing || (c.data.chapter_number ?? 999) < (existing.data.chapter_number ?? 999)) {
     seen.set(key, c);
   }
 }
-
 const chapters = [...seen.values()].sort((a, b) => {
   const sA = a.data.sector_number ?? 0;
   const sB = b.data.sector_number ?? 0;
   if (sA !== sB) return sA - sB;
-  return (a.data.chapter_number ?? 0) - (b.data.chapter_number ?? 0);
+  return (Number(a.data.chapter_number) ?? 0) - (Number(b.data.chapter_number) ?? 0);
 });
-
 const bySector = chapters.reduce<Record<string, typeof chapters>>((acc, c) => {
   const key = c.data.sector ?? 'Other';
   (acc[key] ??= []).push(c);
   return acc;
 }, {});
+
+// ── Introduction sub-sections ────────────────────────────────────────────────
+const introSubs = allChapters
+  .filter(c =>
+    c.data.book === 'justice-behind-the-walls' &&
+    c.data.chapter_slug === 'introduction' &&
+    c.data.subsection_slug != null
+  )
+  .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+
+// ── Conclusion sub-sections ──────────────────────────────────────────────────
+const conclusionSubs = allChapters
+  .filter(c =>
+    c.data.book === 'justice-behind-the-walls' &&
+    c.data.chapter_slug === 'conclusion' &&
+    c.data.subsection_slug != null
+  )
+  .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
 ---
 
 <!doctype html>
@@ -38,6 +59,22 @@ const bySector = chapters.reduce<Record<string, typeof chapters>>((acc, c) => {
   <body>
     <main>
       <h1>Justice Behind the Walls</h1>
+
+      {/* Introduction */}
+      <section>
+        <h2>Introduction</h2>
+        <ol>
+          {introSubs.map(s => (
+            <li>
+              <a href={`/publications/justice-behind-the-walls/introduction/${s.data.subsection_slug}/`}>
+                {s.data.subsection_title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* Sectors 1–6 */}
       {Object.entries(bySector).map(([sector, cs]) => (
         <section>
           <h2>{sector}</h2>
@@ -52,6 +89,22 @@ const bySector = chapters.reduce<Record<string, typeof chapters>>((acc, c) => {
           </ol>
         </section>
       ))}
+
+      {/* Conclusion */}
+      {conclusionSubs.length > 0 && (
+        <section>
+          <h2>Conclusion</h2>
+          <ol>
+            {conclusionSubs.map(s => (
+              <li>
+                <a href={`/publications/justice-behind-the-walls/conclusion/`}>
+                  {s.data.subsection_title}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
     </main>
   </body>
 </html>

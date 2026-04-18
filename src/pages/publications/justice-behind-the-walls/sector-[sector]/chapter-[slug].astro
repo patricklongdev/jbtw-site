@@ -3,22 +3,82 @@ import { getCollection, render } from 'astro:content';
 import ChapterLayout from '../../../../layouts/ChapterLayout.astro';
 
 export async function getStaticPaths() {
-  const chapters = await getCollection('chapters');
-  return chapters
-    .filter(c => c.data.book === 'justice-behind-the-walls' && c.data.sector_number != null && c.data.chapter_slug != null)
-    .map(c => ({
-      params: {
+  const allChapters = await getCollection('chapters');
+
+  // Group content sub-sections by (sector_number, chapter_slug)
+  const byChapter = new Map<string, {
+    sector: string;
+    slug: string;
+    subsections: typeof allChapters;
+  }>();
+
+  for (const c of allChapters) {
+    if (
+      c.data.book !== 'justice-behind-the-walls' ||
+      c.data.sector_number == null ||
+      !c.data.chapter_slug ||
+      !c.data.subsection_slug
+    ) continue;
+
+    const key = `${c.data.sector_number}-${c.data.chapter_slug}`;
+    if (!byChapter.has(key)) {
+      byChapter.set(key, {
         sector: String(c.data.sector_number),
         slug: c.data.chapter_slug,
-      },
-      props: { chapter: c },
-    }));
+        subsections: [],
+      });
+    }
+    byChapter.get(key)!.subsections.push(c);
+  }
+
+  return [...byChapter.values()].map(({ sector, slug, subsections }) => ({
+    params: { sector, slug },
+    props: {
+      subsections: subsections.sort(
+        (a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0)
+      ),
+    },
+  }));
 }
 
-const { chapter } = Astro.props;
-const { Content } = await render(chapter);
+const { subsections } = Astro.props;
+const first = subsections[0];
+const chapterTitle = first.data.chapter ?? first.data.title;
+
+// If there is only one sub-section, render it directly instead of a TOC
+let singleContent: Awaited<ReturnType<typeof render>> | null = null;
+if (subsections.length === 1) {
+  singleContent = await render(first);
+}
 ---
 
-<ChapterLayout frontmatter={chapter.data}>
-  <Content />
-</ChapterLayout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{chapterTitle}</title>
+  </head>
+  <body>
+    <main>
+      {singleContent ? (
+        <ChapterLayout frontmatter={first.data}>
+          <singleContent.Content />
+        </ChapterLayout>
+      ) : (
+        <>
+          <h1>{chapterTitle}</h1>
+          <ol>
+            {subsections.map(s => (
+              <li>
+                <a href={`/publications/justice-behind-the-walls/sector-${first.data.sector_number}/chapter-${first.data.chapter_slug}/${s.data.subsection_slug}/`}>
+                  {s.data.subsection_title}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+    </main>
+  </body>
+</html>

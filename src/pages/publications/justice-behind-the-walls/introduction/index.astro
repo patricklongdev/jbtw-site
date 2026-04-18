@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+
+const all = await getCollection('chapters');
+const subsections = all
+  .filter(c =>
+    c.data.book === 'justice-behind-the-walls' &&
+    c.data.chapter_slug === 'introduction' &&
+    c.data.subsection_slug != null
+  )
+  .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Introduction — Justice Behind the Walls</title>
+  </head>
+  <body>
+    <main>
+      <h1>Introduction</h1>
+      <ol>
+        {subsections.map(s => (
+          <li>
+            <a href={`/publications/justice-behind-the-walls/introduction/${s.data.subsection_slug}/`}>
+              {s.data.subsection_title}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </main>
+  </body>
+</html>

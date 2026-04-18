@@ -1,0 +1,30 @@
+---
+import { getCollection, render } from 'astro:content';
+import ChapterLayout from '../../../../../layouts/ChapterLayout.astro';
+
+export async function getStaticPaths() {
+  const allChapters = await getCollection('chapters');
+  return allChapters
+    .filter(c =>
+      c.data.book === 'justice-behind-the-walls' &&
+      c.data.sector_number != null &&
+      c.data.chapter_slug != null &&
+      c.data.subsection_slug != null
+    )
+    .map(c => ({
+      params: {
+        sector:     String(c.data.sector_number),
+        slug:       c.data.chapter_slug!,
+        subsection: c.data.subsection_slug!,
+      },
+      props: { chapter: c },
+    }));
+}
+
+const { chapter } = Astro.props;
+const { Content } = await render(chapter);
+---
+
+<ChapterLayout frontmatter={chapter.data}>
+  <Content />
+</ChapterLayout>

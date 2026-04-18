@@ -1,0 +1,21 @@
+---
+import { getCollection, render } from 'astro:content';
+import ChapterLayout from '../../../../layouts/ChapterLayout.astro';
+
+const all = await getCollection('chapters');
+const subsections = all
+  .filter(c =>
+    c.data.book === 'justice-behind-the-walls' &&
+    c.data.chapter_slug === 'conclusion' &&
+    c.data.subsection_slug != null
+  )
+  .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+
+// There is only one Conclusion sub-section — render it directly
+const chapter = subsections[0];
+const { Content } = await render(chapter);
+---
+
+<ChapterLayout frontmatter={chapter.data}>
+  <Content />
+</ChapterLayout>

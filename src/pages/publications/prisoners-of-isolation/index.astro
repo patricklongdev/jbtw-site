@@ -3,16 +3,32 @@ import { getCollection } from 'astro:content';
 
 const allChapters = await getCollection('chapters');
 
-// Deduplicate by chapter_slug — keep lowest chapter_number per slug
+// ── Preface ──────────────────────────────────────────────────────────────────
+const prefaceSubs = allChapters
+  .filter(c =>
+    c.data.book === 'prisoners-of-isolation' &&
+    c.data.chapter_slug === 'preface' &&
+    c.data.subsection_slug != null
+  )
+  .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+
+// ── Chapters 1–7: deduplicate by chapter_slug, keep first sub-section ────────
 const seen = new Map<string, typeof allChapters[0]>();
 for (const c of allChapters) {
-  if (c.data.book !== 'prisoners-of-isolation' || !c.data.chapter_slug) continue;
+  if (
+    c.data.book !== 'prisoners-of-isolation' ||
+    !c.data.chapter_slug ||
+    c.data.chapter_slug === 'preface' ||
+    !c.data.subsection_slug
+  ) continue;
   const existing = seen.get(c.data.chapter_slug);
-  if (!existing || (c.data.chapter_number ?? 999) < (existing.data.chapter_number ?? 999)) {
+  if (!existing || (Number(c.data.chapter_number) ?? 999) < (Number(existing.data.chapter_number) ?? 999)) {
     seen.set(c.data.chapter_slug, c);
   }
 }
-const chapters = [...seen.values()].sort((a, b) => (a.data.chapter_number ?? 0) - (b.data.chapter_number ?? 0));
+const chapters = [...seen.values()].sort(
+  (a, b) => (Number(a.data.chapter_number) ?? 0) - (Number(b.data.chapter_number) ?? 0)
+);
 ---
 
 <!doctype html>
@@ -25,15 +41,35 @@ const chapters = [...seen.values()].sort((a, b) => (a.data.chapter_number ?? 0) 
   <body>
     <main>
       <h1>Prisoners of Isolation: Solitary Confinement in Canada</h1>
-      <ol>
-        {chapters.map(c => (
-          <li>
-            <a href={`/publications/prisoners-of-isolation/chapter-${c.data.chapter_slug}/`}>
-              {c.data.chapter}
-            </a>
-          </li>
-        ))}
-      </ol>
+
+      {/* Preface */}
+      {prefaceSubs.length > 0 && (
+        <section>
+          <h2>Preface</h2>
+          <ol>
+            {prefaceSubs.map(s => (
+              <li>
+                <a href={`/publications/prisoners-of-isolation/preface/${s.data.subsection_slug}/`}>
+                  {s.data.subsection_title}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {/* Chapters */}
+      <section>
+        <ol>
+          {chapters.map(c => (
+            <li>
+              <a href={`/publications/prisoners-of-isolation/chapter-${c.data.chapter_slug}/`}>
+                {c.data.chapter}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
     </main>
   </body>
 </html>
