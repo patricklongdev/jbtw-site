@@ -5,7 +5,7 @@ import ChapterLayout from '../../../layouts/ChapterLayout.astro';
 export async function getStaticPaths() {
   const chapters = await getCollection('chapters');
   return chapters
-    .filter(c => c.data.book === 'prisoners-of-isolation')
+    .filter(c => c.data.book === 'prisoners-of-isolation' && c.data.chapter_slug != null)
     .map(c => ({
       params: { slug: c.data.chapter_slug },
       props: { chapter: c },
