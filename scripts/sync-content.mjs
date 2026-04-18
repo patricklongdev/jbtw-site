@@ -39,10 +39,14 @@ function sanitizeMdx(content) {
 
   // Escape `<` that appear mid-word only when NOT followed by a known HTML tag.
   // This catches OCR artifacts (fO<xl) but preserves real tags (behaviour<sup>).
-  const sanitized = body.replace(/([A-Za-z0-9])<([A-Za-z][A-Za-z0-9]*)/g, (match, pre, tagName) => {
+  let sanitized = body.replace(/([A-Za-z0-9])<([A-Za-z][A-Za-z0-9]*)/g, (match, pre, tagName) => {
     if (HTML_TAGS.has(tagName.toLowerCase())) return match;
     return `${pre}&lt;${tagName}`;
   });
+
+  // Escape bare { and } — MDX treats these as JS expression delimiters.
+  // This content never uses JS expressions so all braces are OCR artifacts.
+  sanitized = sanitized.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;');
 
   return frontmatter + sanitized;
 }
