@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import ChapterLayout from '../../../../layouts/ChapterLayout.astro';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
   const allChapters = await getCollection('chapters');
@@ -85,25 +86,16 @@ if (subsections.length === 1) {
     <singleContent.Content />
   </ChapterLayout>
 ) : (
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>{chapterTitle}</title>
-    </head>
-    <body>
-      <main>
-        <h1>{chapterTitle}</h1>
-        <ol>
-          {subsections.map(s => (
-            <li>
-              <a href={`/publications/justice-behind-the-walls/sector-${first.data.sector_number}/chapter-${first.data.chapter_slug}/${s.data.subsection_slug}/`}>
-                {s.data.subsection_title}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </main>
-    </body>
-  </html>
+  <BaseLayout title={chapterTitle}>
+    <h1>{chapterTitle}</h1>
+    <ol>
+      {subsections.map(s => (
+        <li>
+          <a href={`/publications/justice-behind-the-walls/sector-${first.data.sector_number}/chapter-${first.data.chapter_slug}/${s.data.subsection_slug}/`}>
+            {s.data.subsection_title}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </BaseLayout>
 )}

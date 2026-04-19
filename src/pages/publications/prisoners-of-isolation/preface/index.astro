@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
 
 const all = await getCollection('chapters');
 const subsections = all
@@ -11,25 +12,15 @@ const subsections = all
   .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Preface — Prisoners of Isolation</title>
-  </head>
-  <body>
-    <main>
-      <h1>Preface</h1>
-      <ol>
-        {subsections.map(s => (
-          <li>
-            <a href={`/publications/prisoners-of-isolation/preface/${s.data.subsection_slug}/`}>
-              {s.data.subsection_title}
-            </a>
-          </li>
-        ))}
-      </ol>
-    </main>
-  </body>
-</html>
+<BaseLayout title="Preface — Prisoners of Isolation">
+  <h1>Preface</h1>
+  <ol>
+    {subsections.map(s => (
+      <li>
+        <a href={`/publications/prisoners-of-isolation/preface/${s.data.subsection_slug}/`}>
+          {s.data.subsection_title}
+        </a>
+      </li>
+    ))}
+  </ol>
+</BaseLayout>

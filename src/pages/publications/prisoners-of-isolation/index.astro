@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 
 const allChapters = await getCollection('chapters');
 
@@ -46,15 +47,7 @@ for (const ch of chapterMap.values()) {
 const chapters = [...chapterMap.values()].sort((a, b) => a.chapterNumber - b.chapterNumber);
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prisoners of Isolation</title>
-  </head>
-  <body>
-    <main>
+<BaseLayout title="Prisoners of Isolation">
       <h1>Prisoners of Isolation: Solitary Confinement in Canada</h1>
 
       {/* Preface */}
@@ -100,6 +93,4 @@ const chapters = [...chapterMap.values()].sort((a, b) => a.chapterNumber - b.cha
           ))}
         </ol>
       </section>
-    </main>
-  </body>
-</html>
+</BaseLayout>

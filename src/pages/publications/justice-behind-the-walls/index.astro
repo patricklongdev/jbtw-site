@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 
 const allChapters = await getCollection('chapters');
 
@@ -65,15 +66,7 @@ const conclusionSubs = allChapters
   .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Justice Behind the Walls</title>
-  </head>
-  <body>
-    <main>
+<BaseLayout title="Justice Behind the Walls">
       <h1>Justice Behind the Walls</h1>
 
       {/* Introduction */}
@@ -136,6 +129,4 @@ const conclusionSubs = allChapters
           </ol>
         </section>
       )}
-    </main>
-  </body>
-</html>
+</BaseLayout>
