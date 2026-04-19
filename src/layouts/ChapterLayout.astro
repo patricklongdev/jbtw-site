@@ -18,6 +18,9 @@ interface Props {
 
 const { frontmatter, prev, next } = Astro.props;
 const { title, book, sector_number, chapter, chapter_slug, subsection_title } = frontmatter;
+const subsection_slug = frontmatter.subsection_slug as string | undefined;
+// Single-sub-section chapters share the same slug for chapter and subsection
+const isSingleSubsection = !!chapter_slug && chapter_slug === subsection_slug;
 
 const bookTitle = book === 'justice-behind-the-walls'
   ? 'Justice Behind the Walls'
@@ -38,8 +41,12 @@ function chapterUrl(): string {
 const crumbs: Array<{ label: string; href?: string }> = [
   { label: 'Home', href: '/' },
   { label: bookTitle, href: bookUrl },
-  ...(chapter ? [{ label: chapter, href: chapterUrl() }] : []),
-  { label: subsection_title ?? title },
+  ...(chapter
+    ? isSingleSubsection
+      ? [{ label: chapter }]
+      : [{ label: chapter, href: chapterUrl() }, { label: subsection_title ?? title }]
+    : [{ label: subsection_title ?? title }]
+  ),
 ];
 
 const pageTitle = subsection_title

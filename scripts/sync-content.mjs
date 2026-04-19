@@ -32,14 +32,30 @@ const HTML_TAGS = new Set([
   'title','tr','track','u','ul','var','video','wbr',
 ]);
 
+function extractSubsectionTitle(frontmatter) {
+  const m = frontmatter.match(/^subsection_title:\s*(?:'([^']*)'|"([^"]*)"|(.+?)\s*$)/m);
+  return m ? (m[1] ?? m[2] ?? m[3] ?? '').trim() : '';
+}
+
+function stripMatchingHeadings(body, subsectionTitle) {
+  if (!subsectionTitle) return body;
+  // Strip every occurrence of "## {subsectionTitle}" — these are ASP page-header
+  // artifacts repeated at the top of each scraped page within the same sub-section.
+  const escaped = subsectionTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return body.replace(new RegExp(`^[ \\t]*#{1,3}[ \\t]+${escaped}[ \\t]*\\r?\\n?`, 'gim'), '');
+}
+
 function sanitizeMdx(content) {
   const fmMatch = content.match(/^(---\n[\s\S]*?\n---\n)([\s\S]*)$/);
   if (!fmMatch) return content;
   const [, frontmatter, body] = fmMatch;
 
+  const subsectionTitle = extractSubsectionTitle(frontmatter);
+  const bodyStripped = stripMatchingHeadings(body, subsectionTitle);
+
   // Escape `<` that appear mid-word only when NOT followed by a known HTML tag.
   // This catches OCR artifacts (fO<xl) but preserves real tags (behaviour<sup>).
-  let sanitized = body.replace(/([A-Za-z0-9])<([A-Za-z][A-Za-z0-9]*)/g, (match, pre, tagName) => {
+  let sanitized = bodyStripped.replace(/([A-Za-z0-9])<([A-Za-z][A-Za-z0-9]*)/g, (match, pre, tagName) => {
     if (HTML_TAGS.has(tagName.toLowerCase())) return match;
     return `${pre}&lt;${tagName}`;
   });
