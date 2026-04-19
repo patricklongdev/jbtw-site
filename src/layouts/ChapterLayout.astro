@@ -19,8 +19,10 @@ interface Props {
 const { frontmatter, prev, next } = Astro.props;
 const { title, book, sector_number, chapter, chapter_slug, subsection_title } = frontmatter;
 const subsection_slug = frontmatter.subsection_slug as string | undefined;
-// Single-sub-section chapters share the same slug for chapter and subsection
-const isSingleSubsection = !!chapter_slug && chapter_slug === subsection_slug;
+// Detect single-sub-section: slugs match, or display names are identical
+const isSingleSubsection =
+  (!!chapter_slug && chapter_slug === subsection_slug) ||
+  (!!chapter && !!subsection_title && chapter.toLowerCase() === subsection_title.toLowerCase());
 
 const bookTitle = book === 'justice-behind-the-walls'
   ? 'Justice Behind the Walls'
