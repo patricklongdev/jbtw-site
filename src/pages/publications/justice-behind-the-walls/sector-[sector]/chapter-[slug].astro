@@ -5,12 +5,38 @@ import ChapterLayout from '../../../../layouts/ChapterLayout.astro';
 export async function getStaticPaths() {
   const allChapters = await getCollection('chapters');
 
-  const byChapter = new Map<string, {
-    sector: string;
-    slug: string;
-    subsections: typeof allChapters;
-  }>();
+  type Entry = typeof allChapters[number];
 
+  function sortKey(c: Entry): [number, number, number] {
+    const slug = c.data.chapter_slug;
+    const sectorOrder = slug === 'introduction' ? 0 : slug === 'conclusion' ? 999 : (c.data.sector_number ?? 500);
+    return [sectorOrder, Number(c.data.chapter_number) || 0, c.data.subsection_number ?? 0];
+  }
+
+  function navLink(c: Entry) {
+    const label = c.data.subsection_title ?? c.data.title;
+    const slug = c.data.chapter_slug;
+    let href: string;
+    if (slug === 'introduction') {
+      href = `/publications/justice-behind-the-walls/introduction/${c.data.subsection_slug}/`;
+    } else if (slug === 'conclusion') {
+      href = '/publications/justice-behind-the-walls/conclusion/';
+    } else {
+      href = `/publications/justice-behind-the-walls/sector-${c.data.sector_number}/chapter-${slug}/${c.data.subsection_slug}/`;
+    }
+    return { title: label, href };
+  }
+
+  // Full book-wide sequence (introduction → sectors 1-6 → conclusion)
+  const jbtwAll = allChapters
+    .filter(c => c.data.book === 'justice-behind-the-walls' && c.data.subsection_slug != null)
+    .sort((a, b) => {
+      const [sa, ca, ua] = sortKey(a);
+      const [sb, cb, ub] = sortKey(b);
+      return sa !== sb ? sa - sb : ca !== cb ? ca - cb : ua - ub;
+    });
+
+  const byChapter = new Map<string, { sector: string; slug: string; subsections: typeof allChapters }>();
   for (const c of allChapters) {
     if (
       c.data.book !== 'justice-behind-the-walls' ||
@@ -18,29 +44,33 @@ export async function getStaticPaths() {
       !c.data.chapter_slug ||
       !c.data.subsection_slug
     ) continue;
-
     const key = `${c.data.sector_number}-${c.data.chapter_slug}`;
     if (!byChapter.has(key)) {
-      byChapter.set(key, {
-        sector: String(c.data.sector_number),
-        slug: c.data.chapter_slug,
-        subsections: [],
-      });
+      byChapter.set(key, { sector: String(c.data.sector_number), slug: c.data.chapter_slug, subsections: [] });
     }
     byChapter.get(key)!.subsections.push(c);
   }
 
-  return [...byChapter.values()].map(({ sector, slug, subsections }) => ({
-    params: { sector, slug },
-    props: {
-      subsections: subsections.sort(
-        (a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0)
-      ),
-    },
-  }));
+  return [...byChapter.values()].map(({ sector, slug, subsections }) => {
+    subsections.sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+    const first = subsections[0];
+
+    // For single-sub-section chapters, compute prev/next from the global sequence
+    let prev = null, next = null;
+    if (subsections.length === 1) {
+      const i = jbtwAll.indexOf(first);
+      prev = i > 0 ? navLink(jbtwAll[i - 1]) : null;
+      next = i < jbtwAll.length - 1 ? navLink(jbtwAll[i + 1]) : null;
+    }
+
+    return {
+      params: { sector, slug },
+      props: { subsections, prev, next },
+    };
+  });
 }
 
-const { subsections } = Astro.props;
+const { subsections, prev, next } = Astro.props;
 const first = subsections[0];
 const chapterTitle = first.data.chapter ?? first.data.title;
 
@@ -51,7 +81,7 @@ if (subsections.length === 1) {
 ---
 
 {singleContent ? (
-  <ChapterLayout frontmatter={first.data}>
+  <ChapterLayout frontmatter={first.data} prev={prev} next={next}>
     <singleContent.Content />
   </ChapterLayout>
 ) : (
