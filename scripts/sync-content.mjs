@@ -41,21 +41,27 @@ function slugify(text) {
   return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
 }
 
+function stripLeadingArticle(slug) {
+  return slug.replace(/^(?:a|an|the)-/, '');
+}
+
 function stripMatchingHeadings(body, subsectionSlug) {
   if (!subsectionSlug) return body;
   // Strip section-title headings repeated at the top of each scraped page.
   // Also strips an immediately-following ALL-CAPS line (orphaned second line of
   // a wrapped heading, e.g. "CANADA'S 'RADICAL' REFORM" after the ## line).
   // Comparison uses the first 30 slug chars to tolerate OCR variants like
-  // "isoolation" vs "isolation".
+  // "isoolation" vs "isolation". Leading articles (a/an/the) are stripped
+  // before comparing to handle cases like slug "a-tuesday-..." vs heading "Tuesday...".
+  const normalizedSubSlug = stripLeadingArticle(subsectionSlug);
   return body.replace(
     /^([ \t]*#{1,3}[ \t]+.+\r?\n?)([A-Z][^a-z\n]*\r?\n)?/gm,
     (match, headingLine, continuationLine) => {
       const headingText = headingLine.replace(/^[ \t]*#{1,3}[ \t]+/, '').replace(/\r?\n$/, '').trim();
-      const headingSlug = slugify(headingText);
-      const compareLen = Math.min(headingSlug.length, subsectionSlug.length, 30);
+      const headingSlug = stripLeadingArticle(slugify(headingText));
+      const compareLen = Math.min(headingSlug.length, normalizedSubSlug.length, 30);
       if (compareLen < 20) return match;
-      if (headingSlug.slice(0, compareLen) !== subsectionSlug.slice(0, compareLen)) return match;
+      if (headingSlug.slice(0, compareLen) !== normalizedSubSlug.slice(0, compareLen)) return match;
       return ''; // strip heading + optional ALL-CAPS continuation line
     }
   );
