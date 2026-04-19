@@ -55,35 +55,33 @@ for (const file of files) {
   const normalizedSub = stripLeadingArticle(subsection_slug);
   const lines = body.split('\n');
 
-  // ── 1. Duplicate heading check ─────────────────────────────────────
-  // Find the first non-blank line in the body
+  // ── 1. Duplicate heading check — all occurrences, not just first line ──
+  for (const line of lines) {
+    const headingMatch = line.match(/^[ \t]*#{1,3}[ \t]+(.+)/);
+    if (!headingMatch) continue;
+    const headingSlug = stripLeadingArticle(slugify(headingMatch[1]));
+    const compareLen = Math.min(headingSlug.length, normalizedSub.length, 30);
+    if (compareLen >= 15 && headingSlug.slice(0, compareLen) === normalizedSub.slice(0, compareLen)) {
+      issues.duplicateHeading.push({ file, cid, heading: line.trim(), subsection_slug });
+    }
+  }
+
+  // ── 2. Orphaned fragment check (first non-blank line only) ──────────
   let firstNonBlank = -1;
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].trim()) { firstNonBlank = i; break; }
   }
-
   if (firstNonBlank >= 0) {
     const line = lines[firstNonBlank];
     const headingMatch = line.match(/^[ \t]*#{1,3}[ \t]+(.+)/);
-    if (headingMatch) {
-      const headingSlug = stripLeadingArticle(slugify(headingMatch[1]));
-      const compareLen = Math.min(headingSlug.length, normalizedSub.length, 30);
-      if (compareLen >= 15 && headingSlug.slice(0, compareLen) === normalizedSub.slice(0, compareLen)) {
-        issues.duplicateHeading.push({ file, cid, heading: line.trim(), subsection_slug });
-      }
-    }
-
-    // ── 2. Orphaned fragment check ─────────────────────────────────────
-    // Non-heading first line that looks like a wrapped title tail:
-    // all-caps, or "v. CAPS", or short italic/bold fragment
     if (!headingMatch) {
       const txt = line.trim();
       if (
         txt.length > 0 && txt.length < 80 &&
         (
-          /^[A-Z][^a-z]{4,}$/.test(txt) ||            // ALL CAPS line
-          /^[a-z]\.\s+[A-Z]/.test(txt) ||              // v. THE QUEEN style
-          /^\*[A-Z]/.test(txt)                          // *McCANN* style italic
+          /^[A-Z][^a-z]{4,}$/.test(txt) ||
+          /^[a-z]\.\s+[A-Z]/.test(txt) ||
+          /^\*[A-Z]/.test(txt)
         )
       ) {
         issues.orphanedFragment.push({ file, cid, fragment: txt, subsection_slug });

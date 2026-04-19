@@ -54,12 +54,13 @@ function stripMatchingHeadings(body, subsectionSlug) {
   // "isoolation" vs "isolation". Leading articles (a/an/the) are stripped
   // before comparing to handle cases like slug "a-tuesday-..." vs heading "Tuesday...".
   const normalizedSubSlug = stripLeadingArticle(subsectionSlug);
-  // No /g flag — only the first heading is a candidate for stripping.
-  // Subsequent headings with the same text are real content, not page-title echoes.
-  // The continuation group matches ALL-CAPS lines AND lines like "v. THE QUEEN"
-  // (single lowercase abbreviation + period) that are wrapped title tails.
+  // Strip ALL occurrences of the subsection heading throughout the body.
+  // Multi-page chapters stitched by the scraper repeat the heading at each
+  // page boundary — every instance is redundant because the layout renders
+  // the title as h1. The continuation group catches wrapped tails like
+  // "v. THE QUEEN" (lowercase abbreviation) or ALL-CAPS second lines.
   let result = body.replace(
-    /^([ \t]*#{1,3}[ \t]+.+\r?\n?)([A-Z][^a-z\n]*\r?\n|[a-z]\.[^a-z\n]*\r?\n)?/m,
+    /^([ \t]*#{1,3}[ \t]+.+\r?\n?)([A-Z][^a-z\n]*\r?\n|[a-z]\.[^a-z\n]*\r?\n)?/gm,
     (match, headingLine, continuationLine) => {
       const headingText = headingLine.replace(/^[ \t]*#{1,3}[ \t]+/, '').replace(/\r?\n$/, '').trim();
       const headingSlug = stripLeadingArticle(slugify(headingText));
