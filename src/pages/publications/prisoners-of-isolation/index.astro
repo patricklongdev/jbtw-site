@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 
 const allChapters = await getCollection('chapters');
 
-// ── Preface ──────────────────────────────────────────────────────────────────
+// ── Preface ───────────────────────────────────────────────────────────────────
 const prefaceSubs = allChapters
   .filter(c =>
     c.data.book === 'prisoners-of-isolation' &&
@@ -12,8 +12,16 @@ const prefaceSubs = allChapters
   )
   .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
 
-// ── Chapters 1–7: deduplicate by chapter_slug, keep first sub-section ────────
-const seen = new Map<string, typeof allChapters[0]>();
+// ── Chapters 1–7: all sub-sections grouped by chapter ────────────────────────
+type Entry = typeof allChapters[number];
+interface ChapterGroup {
+  chapterSlug: string;
+  chapterName: string;
+  chapterNumber: number;
+  subsections: Entry[];
+}
+
+const chapterMap = new Map<string, ChapterGroup>();
 for (const c of allChapters) {
   if (
     c.data.book !== 'prisoners-of-isolation' ||
@@ -21,14 +29,21 @@ for (const c of allChapters) {
     c.data.chapter_slug === 'preface' ||
     !c.data.subsection_slug
   ) continue;
-  const existing = seen.get(c.data.chapter_slug);
-  if (!existing || (Number(c.data.chapter_number) ?? 999) < (Number(existing.data.chapter_number) ?? 999)) {
-    seen.set(c.data.chapter_slug, c);
+  const key = c.data.chapter_slug;
+  if (!chapterMap.has(key)) {
+    chapterMap.set(key, {
+      chapterSlug: c.data.chapter_slug,
+      chapterName: c.data.chapter ?? c.data.title,
+      chapterNumber: Number(c.data.chapter_number) || 0,
+      subsections: [],
+    });
   }
+  chapterMap.get(key)!.subsections.push(c);
 }
-const chapters = [...seen.values()].sort(
-  (a, b) => (Number(a.data.chapter_number) ?? 0) - (Number(b.data.chapter_number) ?? 0)
-);
+for (const ch of chapterMap.values()) {
+  ch.subsections.sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+}
+const chapters = [...chapterMap.values()].sort((a, b) => a.chapterNumber - b.chapterNumber);
 ---
 
 <!doctype html>
@@ -61,11 +76,26 @@ const chapters = [...seen.values()].sort(
       {/* Chapters */}
       <section>
         <ol>
-          {chapters.map(c => (
+          {chapters.map(ch => (
             <li>
-              <a href={`/publications/prisoners-of-isolation/chapter-${c.data.chapter_slug}/`}>
-                {c.data.chapter}
-              </a>
+              {ch.subsections.length === 1 ? (
+                <a href={`/publications/prisoners-of-isolation/chapter-${ch.chapterSlug}/`}>
+                  {ch.chapterName}
+                </a>
+              ) : (
+                <>
+                  <span>{ch.chapterName}</span>
+                  <ol>
+                    {ch.subsections.map(s => (
+                      <li>
+                        <a href={`/publications/prisoners-of-isolation/chapter-${ch.chapterSlug}/${s.data.subsection_slug}/`}>
+                          {s.data.subsection_title}
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </>
+              )}
             </li>
           ))}
         </ol>

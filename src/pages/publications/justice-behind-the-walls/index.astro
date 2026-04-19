@@ -3,34 +3,7 @@ import { getCollection } from 'astro:content';
 
 const allChapters = await getCollection('chapters');
 
-// ── Chapters grouped by sector (Sectors 1–6 only) ────────────────────────────
-const seen = new Map<string, typeof allChapters[0]>();
-for (const c of allChapters) {
-  if (
-    c.data.book !== 'justice-behind-the-walls' ||
-    !c.data.chapter_slug ||
-    c.data.sector_number == null ||
-    !c.data.subsection_slug
-  ) continue;
-  const key = `${c.data.sector_number}-${c.data.chapter_slug}`;
-  const existing = seen.get(key);
-  if (!existing || (c.data.chapter_number ?? 999) < (existing.data.chapter_number ?? 999)) {
-    seen.set(key, c);
-  }
-}
-const chapters = [...seen.values()].sort((a, b) => {
-  const sA = a.data.sector_number ?? 0;
-  const sB = b.data.sector_number ?? 0;
-  if (sA !== sB) return sA - sB;
-  return (Number(a.data.chapter_number) ?? 0) - (Number(b.data.chapter_number) ?? 0);
-});
-const bySector = chapters.reduce<Record<string, typeof chapters>>((acc, c) => {
-  const key = c.data.sector ?? 'Other';
-  (acc[key] ??= []).push(c);
-  return acc;
-}, {});
-
-// ── Introduction sub-sections ────────────────────────────────────────────────
+// ── Introduction ─────────────────────────────────────────────────────────────
 const introSubs = allChapters
   .filter(c =>
     c.data.book === 'justice-behind-the-walls' &&
@@ -39,7 +12,50 @@ const introSubs = allChapters
   )
   .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
 
-// ── Conclusion sub-sections ──────────────────────────────────────────────────
+// ── Sectors 1–6: all sub-sections grouped by chapter ─────────────────────────
+type Entry = typeof allChapters[number];
+interface ChapterGroup {
+  sector: string;
+  sectorNum: number;
+  chapterSlug: string;
+  chapterName: string;
+  chapterNumber: number;
+  subsections: Entry[];
+}
+
+const chapterMap = new Map<string, ChapterGroup>();
+for (const c of allChapters) {
+  if (
+    c.data.book !== 'justice-behind-the-walls' ||
+    !c.data.chapter_slug ||
+    c.data.sector_number == null ||
+    !c.data.subsection_slug
+  ) continue;
+  const key = `${c.data.sector_number}-${c.data.chapter_slug}`;
+  if (!chapterMap.has(key)) {
+    chapterMap.set(key, {
+      sector: c.data.sector ?? 'Other',
+      sectorNum: c.data.sector_number,
+      chapterSlug: c.data.chapter_slug,
+      chapterName: c.data.chapter ?? c.data.title,
+      chapterNumber: Number(c.data.chapter_number) || 0,
+      subsections: [],
+    });
+  }
+  chapterMap.get(key)!.subsections.push(c);
+}
+for (const ch of chapterMap.values()) {
+  ch.subsections.sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+}
+const sortedChapters = [...chapterMap.values()].sort((a, b) =>
+  a.sectorNum !== b.sectorNum ? a.sectorNum - b.sectorNum : a.chapterNumber - b.chapterNumber
+);
+const bySector = sortedChapters.reduce<Record<string, ChapterGroup[]>>((acc, ch) => {
+  (acc[ch.sector] ??= []).push(ch);
+  return acc;
+}, {});
+
+// ── Conclusion ────────────────────────────────────────────────────────────────
 const conclusionSubs = allChapters
   .filter(c =>
     c.data.book === 'justice-behind-the-walls' &&
@@ -75,15 +91,30 @@ const conclusionSubs = allChapters
       </section>
 
       {/* Sectors 1–6 */}
-      {Object.entries(bySector).map(([sector, cs]) => (
+      {Object.entries(bySector).map(([sector, chapters]) => (
         <section>
           <h2>{sector}</h2>
           <ol>
-            {cs.map(c => (
+            {chapters.map(ch => (
               <li>
-                <a href={`/publications/justice-behind-the-walls/sector-${c.data.sector_number}/chapter-${c.data.chapter_slug}/`}>
-                  {c.data.chapter}
-                </a>
+                {ch.subsections.length === 1 ? (
+                  <a href={`/publications/justice-behind-the-walls/sector-${ch.sectorNum}/chapter-${ch.chapterSlug}/`}>
+                    {ch.chapterName}
+                  </a>
+                ) : (
+                  <>
+                    <span>{ch.chapterName}</span>
+                    <ol>
+                      {ch.subsections.map(s => (
+                        <li>
+                          <a href={`/publications/justice-behind-the-walls/sector-${ch.sectorNum}/chapter-${ch.chapterSlug}/${s.data.subsection_slug}/`}>
+                            {s.data.subsection_title}
+                          </a>
+                        </li>
+                      ))}
+                    </ol>
+                  </>
+                )}
               </li>
             ))}
           </ol>
@@ -97,7 +128,7 @@ const conclusionSubs = allChapters
           <ol>
             {conclusionSubs.map(s => (
               <li>
-                <a href={`/publications/justice-behind-the-walls/conclusion/`}>
+                <a href="/publications/justice-behind-the-walls/conclusion/">
                   {s.data.subsection_title}
                 </a>
               </li>
