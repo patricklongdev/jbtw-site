@@ -5,7 +5,6 @@ import ChapterLayout from '../../../../layouts/ChapterLayout.astro';
 export async function getStaticPaths() {
   const allChapters = await getCollection('chapters');
 
-  // Group content sub-sections by (sector_number, chapter_slug)
   const byChapter = new Map<string, {
     sector: string;
     slug: string;
@@ -45,40 +44,36 @@ const { subsections } = Astro.props;
 const first = subsections[0];
 const chapterTitle = first.data.chapter ?? first.data.title;
 
-// If there is only one sub-section, render it directly instead of a TOC
 let singleContent: Awaited<ReturnType<typeof render>> | null = null;
 if (subsections.length === 1) {
   singleContent = await render(first);
 }
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{chapterTitle}</title>
-  </head>
-  <body>
-    <main>
-      {singleContent ? (
-        <ChapterLayout frontmatter={first.data}>
-          <singleContent.Content />
-        </ChapterLayout>
-      ) : (
-        <>
-          <h1>{chapterTitle}</h1>
-          <ol>
-            {subsections.map(s => (
-              <li>
-                <a href={`/publications/justice-behind-the-walls/sector-${first.data.sector_number}/chapter-${first.data.chapter_slug}/${s.data.subsection_slug}/`}>
-                  {s.data.subsection_title}
-                </a>
-              </li>
-            ))}
-          </ol>
-        </>
-      )}
-    </main>
-  </body>
-</html>
+{singleContent ? (
+  <ChapterLayout frontmatter={first.data}>
+    <singleContent.Content />
+  </ChapterLayout>
+) : (
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>{chapterTitle}</title>
+    </head>
+    <body>
+      <main>
+        <h1>{chapterTitle}</h1>
+        <ol>
+          {subsections.map(s => (
+            <li>
+              <a href={`/publications/justice-behind-the-walls/sector-${first.data.sector_number}/chapter-${first.data.chapter_slug}/${s.data.subsection_slug}/`}>
+                {s.data.subsection_title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </main>
+    </body>
+  </html>
+)}

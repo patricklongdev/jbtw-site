@@ -5,7 +5,6 @@ import ChapterLayout from '../../../layouts/ChapterLayout.astro';
 export async function getStaticPaths() {
   const allChapters = await getCollection('chapters');
 
-  // Group content sub-sections by chapter_slug
   const byChapter = new Map<string, {
     slug: string;
     subsections: typeof allChapters;
@@ -16,7 +15,6 @@ export async function getStaticPaths() {
       c.data.book !== 'prisoners-of-isolation' ||
       !c.data.chapter_slug ||
       !c.data.subsection_slug ||
-      // Exclude special top-level sections (preface, etc.) — handled by their own routes
       c.data.chapter_slug === 'preface'
     ) continue;
 
@@ -41,40 +39,36 @@ const { subsections } = Astro.props;
 const first = subsections[0];
 const chapterTitle = first.data.chapter ?? first.data.title;
 
-// If there is only one sub-section, render content directly
 let singleContent: Awaited<ReturnType<typeof render>> | null = null;
 if (subsections.length === 1) {
   singleContent = await render(first);
 }
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{chapterTitle}</title>
-  </head>
-  <body>
-    <main>
-      {singleContent ? (
-        <ChapterLayout frontmatter={first.data}>
-          <singleContent.Content />
-        </ChapterLayout>
-      ) : (
-        <>
-          <h1>{chapterTitle}</h1>
-          <ol>
-            {subsections.map(s => (
-              <li>
-                <a href={`/publications/prisoners-of-isolation/chapter-${first.data.chapter_slug}/${s.data.subsection_slug}/`}>
-                  {s.data.subsection_title}
-                </a>
-              </li>
-            ))}
-          </ol>
-        </>
-      )}
-    </main>
-  </body>
-</html>
+{singleContent ? (
+  <ChapterLayout frontmatter={first.data}>
+    <singleContent.Content />
+  </ChapterLayout>
+) : (
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>{chapterTitle}</title>
+    </head>
+    <body>
+      <main>
+        <h1>{chapterTitle}</h1>
+        <ol>
+          {subsections.map(s => (
+            <li>
+              <a href={`/publications/prisoners-of-isolation/chapter-${first.data.chapter_slug}/${s.data.subsection_slug}/`}>
+                {s.data.subsection_title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </main>
+    </body>
+  </html>
+)}
