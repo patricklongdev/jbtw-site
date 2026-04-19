@@ -1,4 +1,5 @@
 ---
+import SiteNav from '../components/SiteNav.astro';
 type NavLink = { title: string; href: string };
 
 interface Props {
@@ -66,6 +67,7 @@ const pageTitle = subsection_title
     <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
   </head>
   <body>
+    <SiteNav />
     <header>
       <div id="search"></div>
       <nav aria-label="Breadcrumb">

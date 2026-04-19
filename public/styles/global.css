@@ -11,25 +11,74 @@ body {
   background: #fafaf8;
 }
 
+/* ── Site nav ───────────────────────────────────────────────────────── */
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.site-nav__name {
+  font-family: system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #111;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.site-nav__name:visited { color: #111; }
+.site-nav__name:hover   { color: #1a4a7a; }
+
+.site-nav__links {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.833rem;
+}
+
+.site-nav__links a {
+  color: #444;
+  text-decoration: none;
+}
+
+.site-nav__links a:visited { color: #444; }
+.site-nav__links a:hover   { color: #111; }
+
+.site-nav__links a[aria-current="page"] {
+  color: #111;
+  font-weight: 600;
+}
+
 /* ── Page layout ────────────────────────────────────────────────────── */
-body > header,
 body > main {
   max-width: 72ch;
   margin: 0 auto;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
 }
 
+/* ChapterLayout header (search + breadcrumb) */
 body > header {
-  padding-top: 1.25rem;
+  max-width: 72ch;
+  margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid #ddd;
-  margin-bottom: 2.5rem;
-}
-
-body > main {
-  padding-top: 0.5rem;
-  padding-bottom: 4rem;
+  margin-bottom: 2rem;
 }
 
 /* ── Headings ───────────────────────────────────────────────────────── */
@@ -173,3 +222,111 @@ main > ol > li > ol {
 
 /* ── Pagefind search ────────────────────────────────────────────────── */
 #search { margin-bottom: 0.75rem; }
+
+/* ── Homepage ───────────────────────────────────────────────────────── */
+.home-intro {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.home-intro h1 { margin-bottom: 0.25rem; }
+
+.home-intro__byline {
+  font-family: system-ui, sans-serif;
+  font-size: 0.889rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.home-books {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.book-card h2 { margin-top: 0; }
+.book-card h2 a { text-decoration: none; }
+.book-card h2 a:hover { text-decoration: underline; }
+
+.book-card__subtitle {
+  font-family: system-ui, sans-serif;
+  font-size: 0.889rem;
+  color: #666;
+  margin-top: -0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.book-card__cta {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.889rem;
+  text-decoration: none;
+  color: #1a4a7a;
+}
+
+.book-card__cta:hover { text-decoration: underline; }
+
+/* ── Contact form ───────────────────────────────────────────────────── */
+.contact-form {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-field label {
+  font-family: system-ui, sans-serif;
+  font-size: 0.833rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-field input,
+.form-field textarea {
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 0.5rem 0.65rem;
+  width: 100%;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  outline: 2px solid #1a4a7a;
+  outline-offset: 1px;
+  border-color: #1a4a7a;
+}
+
+.contact-form button {
+  align-self: flex-start;
+  font-family: system-ui, sans-serif;
+  font-size: 0.889rem;
+  font-weight: 600;
+  color: #fff;
+  background: #1a4a7a;
+  border: none;
+  border-radius: 3px;
+  padding: 0.6rem 1.25rem;
+  cursor: pointer;
+}
+
+.contact-form button:hover { background: #0d2d4f; }
+
+/* ── Coming soon label ──────────────────────────────────────────────── */
+.coming-soon {
+  font-family: system-ui, sans-serif;
+  font-size: 0.778rem;
+  color: #999;
+}

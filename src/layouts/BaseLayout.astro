@@ -1,4 +1,6 @@
 ---
+import SiteNav from '../components/SiteNav.astro';
+
 interface Props {
   title: string;
 }
@@ -14,6 +16,7 @@ const { title } = Astro.props;
     <link rel="stylesheet" href="/styles/global.css" />
   </head>
   <body>
+    <SiteNav />
     <main>
       <slot />
     </main>
