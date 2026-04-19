@@ -32,17 +32,27 @@ const HTML_TAGS = new Set([
   'title','tr','track','u','ul','var','video','wbr',
 ]);
 
-function extractSubsectionTitle(frontmatter) {
-  const m = frontmatter.match(/^subsection_title:\s*(?:'([^']*)'|"([^"]*)"|(.+?)\s*$)/m);
+function extractSubsectionSlug(frontmatter) {
+  const m = frontmatter.match(/^subsection_slug:\s*(?:'([^']*)'|"([^"]*)"|(.+?)\s*$)/m);
   return m ? (m[1] ?? m[2] ?? m[3] ?? '').trim() : '';
 }
 
-function stripMatchingHeadings(body, subsectionTitle) {
-  if (!subsectionTitle) return body;
-  // Strip every occurrence of "## {subsectionTitle}" — these are ASP page-header
-  // artifacts repeated at the top of each scraped page within the same sub-section.
-  const escaped = subsectionTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return body.replace(new RegExp(`^[ \\t]*#{1,3}[ \\t]+${escaped}[ \\t]*\\r?\\n?`, 'gim'), '');
+function slugify(text) {
+  return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+}
+
+function stripMatchingHeadings(body, subsectionSlug) {
+  if (!subsectionSlug) return body;
+  // Strip headings whose slugified text is a prefix of the subsection slug (≥20 chars).
+  // The old ASP site repeated the section title at the top of each paginated page;
+  // OCR artifacts (apostrophes → nothing) and line-wrapping mean exact text match fails.
+  // Use a greedy match and extract heading text from the full match string.
+  return body.replace(/^[ \t]*#{1,3}[ \t]+.+\r?\n?/gim, (match) => {
+    const headingText = match.replace(/^[ \t]*#{1,3}[ \t]+/, '').replace(/\r?\n$/, '').trim();
+    const headingSlug = slugify(headingText);
+    if (headingSlug.length >= 20 && subsectionSlug.startsWith(headingSlug)) return '';
+    return match;
+  });
 }
 
 function sanitizeMdx(content) {
@@ -50,8 +60,8 @@ function sanitizeMdx(content) {
   if (!fmMatch) return content;
   const [, frontmatter, body] = fmMatch;
 
-  const subsectionTitle = extractSubsectionTitle(frontmatter);
-  const bodyStripped = stripMatchingHeadings(body, subsectionTitle);
+  const subsectionSlug = extractSubsectionSlug(frontmatter);
+  const bodyStripped = stripMatchingHeadings(body, subsectionSlug);
 
   // Escape `<` that appear mid-word only when NOT followed by a known HTML tag.
   // This catches OCR artifacts (fO<xl) but preserves real tags (behaviour<sup>).
