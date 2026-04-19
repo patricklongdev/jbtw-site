@@ -4,22 +4,35 @@ import ChapterLayout from '../../../../layouts/ChapterLayout.astro';
 
 export async function getStaticPaths() {
   const all = await getCollection('chapters');
-  return all
+  const siblings = all
     .filter(c =>
       c.data.book === 'justice-behind-the-walls' &&
       c.data.chapter_slug === 'introduction' &&
       c.data.subsection_slug != null
     )
-    .map(c => ({
-      params: { subsection: c.data.subsection_slug! },
-      props: { chapter: c },
-    }));
+    .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+
+  const baseUrl = '/publications/justice-behind-the-walls/introduction';
+  return siblings.map((c, i) => ({
+    params: { subsection: c.data.subsection_slug! },
+    props: {
+      chapter: c,
+      prev: i > 0 ? {
+        title: siblings[i - 1].data.subsection_title ?? siblings[i - 1].data.title,
+        href: `${baseUrl}/${siblings[i - 1].data.subsection_slug}/`,
+      } : null,
+      next: i < siblings.length - 1 ? {
+        title: siblings[i + 1].data.subsection_title ?? siblings[i + 1].data.title,
+        href: `${baseUrl}/${siblings[i + 1].data.subsection_slug}/`,
+      } : null,
+    },
+  }));
 }
 
-const { chapter } = Astro.props;
+const { chapter, prev, next } = Astro.props;
 const { Content } = await render(chapter);
 ---
 
-<ChapterLayout frontmatter={chapter.data}>
+<ChapterLayout frontmatter={chapter.data} prev={prev} next={next}>
   <Content />
 </ChapterLayout>

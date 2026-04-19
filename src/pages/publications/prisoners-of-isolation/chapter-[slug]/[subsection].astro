@@ -4,26 +4,52 @@ import ChapterLayout from '../../../../layouts/ChapterLayout.astro';
 
 export async function getStaticPaths() {
   const allChapters = await getCollection('chapters');
-  return allChapters
-    .filter(c =>
-      c.data.book === 'prisoners-of-isolation' &&
-      c.data.chapter_slug != null &&
-      c.data.chapter_slug !== 'preface' &&
-      c.data.subsection_slug != null
-    )
-    .map(c => ({
-      params: {
-        slug:       c.data.chapter_slug!,
-        subsection: c.data.subsection_slug!,
-      },
-      props: { chapter: c },
-    }));
+
+  const byChapter = new Map<string, typeof allChapters>();
+  for (const c of allChapters) {
+    if (
+      c.data.book !== 'prisoners-of-isolation' ||
+      !c.data.chapter_slug ||
+      c.data.chapter_slug === 'preface' ||
+      !c.data.subsection_slug
+    ) continue;
+    const key = c.data.chapter_slug;
+    if (!byChapter.has(key)) byChapter.set(key, []);
+    byChapter.get(key)!.push(c);
+  }
+
+  const paths = [];
+  for (const siblings of byChapter.values()) {
+    siblings.sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+    for (let i = 0; i < siblings.length; i++) {
+      const c = siblings[i];
+      const baseUrl = `/publications/prisoners-of-isolation/chapter-${c.data.chapter_slug}`;
+      paths.push({
+        params: {
+          slug:       c.data.chapter_slug!,
+          subsection: c.data.subsection_slug!,
+        },
+        props: {
+          chapter: c,
+          prev: i > 0 ? {
+            title: siblings[i - 1].data.subsection_title ?? siblings[i - 1].data.title,
+            href: `${baseUrl}/${siblings[i - 1].data.subsection_slug}/`,
+          } : null,
+          next: i < siblings.length - 1 ? {
+            title: siblings[i + 1].data.subsection_title ?? siblings[i + 1].data.title,
+            href: `${baseUrl}/${siblings[i + 1].data.subsection_slug}/`,
+          } : null,
+        },
+      });
+    }
+  }
+  return paths;
 }
 
-const { chapter } = Astro.props;
+const { chapter, prev, next } = Astro.props;
 const { Content } = await render(chapter);
 ---
 
-<ChapterLayout frontmatter={chapter.data}>
+<ChapterLayout frontmatter={chapter.data} prev={prev} next={next}>
   <Content />
 </ChapterLayout>
