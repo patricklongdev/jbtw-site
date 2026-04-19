@@ -3,30 +3,52 @@ import { getCollection, render } from 'astro:content';
 import ChapterLayout from '../../../../layouts/ChapterLayout.astro';
 
 export async function getStaticPaths() {
-  const all = await getCollection('chapters');
-  const siblings = all
-    .filter(c =>
-      c.data.book === 'justice-behind-the-walls' &&
-      c.data.chapter_slug === 'introduction' &&
-      c.data.subsection_slug != null
-    )
-    .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+  const allChapters = await getCollection('chapters');
 
-  const baseUrl = '/publications/justice-behind-the-walls/introduction';
-  return siblings.map((c, i) => ({
-    params: { subsection: c.data.subsection_slug! },
-    props: {
-      chapter: c,
-      prev: i > 0 ? {
-        title: siblings[i - 1].data.subsection_title ?? siblings[i - 1].data.title,
-        href: `${baseUrl}/${siblings[i - 1].data.subsection_slug}/`,
-      } : null,
-      next: i < siblings.length - 1 ? {
-        title: siblings[i + 1].data.subsection_title ?? siblings[i + 1].data.title,
-        href: `${baseUrl}/${siblings[i + 1].data.subsection_slug}/`,
-      } : null,
-    },
-  }));
+  type Entry = typeof allChapters[number];
+
+  function sortKey(c: Entry): [number, number, number] {
+    const slug = c.data.chapter_slug;
+    const sectorOrder = slug === 'introduction' ? 0 : slug === 'conclusion' ? 999 : (c.data.sector_number ?? 500);
+    return [sectorOrder, Number(c.data.chapter_number) || 0, c.data.subsection_number ?? 0];
+  }
+
+  function navLink(c: Entry) {
+    const label = c.data.subsection_title ?? c.data.title;
+    const slug = c.data.chapter_slug;
+    let href: string;
+    if (slug === 'introduction') {
+      href = `/publications/justice-behind-the-walls/introduction/${c.data.subsection_slug}/`;
+    } else if (slug === 'conclusion') {
+      href = '/publications/justice-behind-the-walls/conclusion/';
+    } else {
+      href = `/publications/justice-behind-the-walls/sector-${c.data.sector_number}/chapter-${slug}/${c.data.subsection_slug}/`;
+    }
+    return { title: label, href };
+  }
+
+  // Full book-wide sequence (introduction → sectors 1-6 → conclusion)
+  const jbtwAll = allChapters
+    .filter(c => c.data.book === 'justice-behind-the-walls' && c.data.subsection_slug != null)
+    .sort((a, b) => {
+      const [sa, ca, ua] = sortKey(a);
+      const [sb, cb, ub] = sortKey(b);
+      return sa !== sb ? sa - sb : ca !== cb ? ca - cb : ua - ub;
+    });
+
+  return jbtwAll
+    .filter(c => c.data.chapter_slug === 'introduction')
+    .map(c => {
+      const i = jbtwAll.indexOf(c);
+      return {
+        params: { subsection: c.data.subsection_slug! },
+        props: {
+          chapter: c,
+          prev: i > 0 ? navLink(jbtwAll[i - 1]) : null,
+          next: i < jbtwAll.length - 1 ? navLink(jbtwAll[i + 1]) : null,
+        },
+      };
+    });
 }
 
 const { chapter, prev, next } = Astro.props;

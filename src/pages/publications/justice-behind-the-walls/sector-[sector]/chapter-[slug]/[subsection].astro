@@ -5,26 +5,42 @@ import ChapterLayout from '../../../../../layouts/ChapterLayout.astro';
 export async function getStaticPaths() {
   const allChapters = await getCollection('chapters');
 
-  const byChapter = new Map<string, typeof allChapters>();
-  for (const c of allChapters) {
-    if (
-      c.data.book !== 'justice-behind-the-walls' ||
-      c.data.sector_number == null ||
-      !c.data.chapter_slug ||
-      !c.data.subsection_slug
-    ) continue;
-    const key = `${c.data.sector_number}-${c.data.chapter_slug}`;
-    if (!byChapter.has(key)) byChapter.set(key, []);
-    byChapter.get(key)!.push(c);
+  type Entry = typeof allChapters[number];
+
+  function sortKey(c: Entry): [number, number, number] {
+    const slug = c.data.chapter_slug;
+    const sectorOrder = slug === 'introduction' ? 0 : slug === 'conclusion' ? 999 : (c.data.sector_number ?? 500);
+    return [sectorOrder, Number(c.data.chapter_number) || 0, c.data.subsection_number ?? 0];
   }
 
-  const paths = [];
-  for (const siblings of byChapter.values()) {
-    siblings.sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
-    for (let i = 0; i < siblings.length; i++) {
-      const c = siblings[i];
-      const baseUrl = `/publications/justice-behind-the-walls/sector-${c.data.sector_number}/chapter-${c.data.chapter_slug}`;
-      paths.push({
+  function navLink(c: Entry) {
+    const label = c.data.subsection_title ?? c.data.title;
+    const slug = c.data.chapter_slug;
+    let href: string;
+    if (slug === 'introduction') {
+      href = `/publications/justice-behind-the-walls/introduction/${c.data.subsection_slug}/`;
+    } else if (slug === 'conclusion') {
+      href = '/publications/justice-behind-the-walls/conclusion/';
+    } else {
+      href = `/publications/justice-behind-the-walls/sector-${c.data.sector_number}/chapter-${slug}/${c.data.subsection_slug}/`;
+    }
+    return { title: label, href };
+  }
+
+  // Full book-wide sequence (introduction → sectors 1-6 → conclusion)
+  const jbtwAll = allChapters
+    .filter(c => c.data.book === 'justice-behind-the-walls' && c.data.subsection_slug != null)
+    .sort((a, b) => {
+      const [sa, ca, ua] = sortKey(a);
+      const [sb, cb, ub] = sortKey(b);
+      return sa !== sb ? sa - sb : ca !== cb ? ca - cb : ua - ub;
+    });
+
+  return jbtwAll
+    .filter(c => c.data.chapter_slug !== 'introduction' && c.data.chapter_slug !== 'conclusion' && c.data.sector_number != null)
+    .map(c => {
+      const i = jbtwAll.indexOf(c);
+      return {
         params: {
           sector:     String(c.data.sector_number),
           slug:       c.data.chapter_slug!,
@@ -32,19 +48,11 @@ export async function getStaticPaths() {
         },
         props: {
           chapter: c,
-          prev: i > 0 ? {
-            title: siblings[i - 1].data.subsection_title ?? siblings[i - 1].data.title,
-            href: `${baseUrl}/${siblings[i - 1].data.subsection_slug}/`,
-          } : null,
-          next: i < siblings.length - 1 ? {
-            title: siblings[i + 1].data.subsection_title ?? siblings[i + 1].data.title,
-            href: `${baseUrl}/${siblings[i + 1].data.subsection_slug}/`,
-          } : null,
+          prev: i > 0 ? navLink(jbtwAll[i - 1]) : null,
+          next: i < jbtwAll.length - 1 ? navLink(jbtwAll[i + 1]) : null,
         },
-      });
-    }
-  }
-  return paths;
+      };
+    });
 }
 
 const { chapter, prev, next } = Astro.props;

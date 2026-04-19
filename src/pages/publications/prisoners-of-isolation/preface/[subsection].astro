@@ -3,30 +3,46 @@ import { getCollection, render } from 'astro:content';
 import ChapterLayout from '../../../../layouts/ChapterLayout.astro';
 
 export async function getStaticPaths() {
-  const all = await getCollection('chapters');
-  const siblings = all
-    .filter(c =>
-      c.data.book === 'prisoners-of-isolation' &&
-      c.data.chapter_slug === 'preface' &&
-      c.data.subsection_slug != null
-    )
-    .sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
+  const allChapters = await getCollection('chapters');
 
-  const baseUrl = '/publications/prisoners-of-isolation/preface';
-  return siblings.map((c, i) => ({
-    params: { subsection: c.data.subsection_slug! },
-    props: {
-      chapter: c,
-      prev: i > 0 ? {
-        title: siblings[i - 1].data.subsection_title ?? siblings[i - 1].data.title,
-        href: `${baseUrl}/${siblings[i - 1].data.subsection_slug}/`,
-      } : null,
-      next: i < siblings.length - 1 ? {
-        title: siblings[i + 1].data.subsection_title ?? siblings[i + 1].data.title,
-        href: `${baseUrl}/${siblings[i + 1].data.subsection_slug}/`,
-      } : null,
-    },
-  }));
+  type Entry = typeof allChapters[number];
+
+  function sortKey(c: Entry): [number, number] {
+    const chapOrder = c.data.chapter_slug === 'preface' ? 0 : (Number(c.data.chapter_number) || 0);
+    return [chapOrder, c.data.subsection_number ?? 0];
+  }
+
+  function navLink(c: Entry) {
+    const label = c.data.subsection_title ?? c.data.title;
+    const slug = c.data.chapter_slug;
+    const href = slug === 'preface'
+      ? `/publications/prisoners-of-isolation/preface/${c.data.subsection_slug}/`
+      : `/publications/prisoners-of-isolation/chapter-${slug}/${c.data.subsection_slug}/`;
+    return { title: label, href };
+  }
+
+  // Full book-wide sequence (preface → chapters 1-7)
+  const poiAll = allChapters
+    .filter(c => c.data.book === 'prisoners-of-isolation' && c.data.subsection_slug != null)
+    .sort((a, b) => {
+      const [ca, ua] = sortKey(a);
+      const [cb, ub] = sortKey(b);
+      return ca !== cb ? ca - cb : ua - ub;
+    });
+
+  return poiAll
+    .filter(c => c.data.chapter_slug === 'preface')
+    .map(c => {
+      const i = poiAll.indexOf(c);
+      return {
+        params: { subsection: c.data.subsection_slug! },
+        props: {
+          chapter: c,
+          prev: i > 0 ? navLink(poiAll[i - 1]) : null,
+          next: i < poiAll.length - 1 ? navLink(poiAll[i + 1]) : null,
+        },
+      };
+    });
 }
 
 const { chapter, prev, next } = Astro.props;

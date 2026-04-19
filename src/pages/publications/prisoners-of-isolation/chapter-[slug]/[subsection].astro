@@ -5,45 +5,47 @@ import ChapterLayout from '../../../../layouts/ChapterLayout.astro';
 export async function getStaticPaths() {
   const allChapters = await getCollection('chapters');
 
-  const byChapter = new Map<string, typeof allChapters>();
-  for (const c of allChapters) {
-    if (
-      c.data.book !== 'prisoners-of-isolation' ||
-      !c.data.chapter_slug ||
-      c.data.chapter_slug === 'preface' ||
-      !c.data.subsection_slug
-    ) continue;
-    const key = c.data.chapter_slug;
-    if (!byChapter.has(key)) byChapter.set(key, []);
-    byChapter.get(key)!.push(c);
+  type Entry = typeof allChapters[number];
+
+  function sortKey(c: Entry): [number, number] {
+    const chapOrder = c.data.chapter_slug === 'preface' ? 0 : (Number(c.data.chapter_number) || 0);
+    return [chapOrder, c.data.subsection_number ?? 0];
   }
 
-  const paths = [];
-  for (const siblings of byChapter.values()) {
-    siblings.sort((a, b) => (a.data.subsection_number ?? 0) - (b.data.subsection_number ?? 0));
-    for (let i = 0; i < siblings.length; i++) {
-      const c = siblings[i];
-      const baseUrl = `/publications/prisoners-of-isolation/chapter-${c.data.chapter_slug}`;
-      paths.push({
+  function navLink(c: Entry) {
+    const label = c.data.subsection_title ?? c.data.title;
+    const slug = c.data.chapter_slug;
+    const href = slug === 'preface'
+      ? `/publications/prisoners-of-isolation/preface/${c.data.subsection_slug}/`
+      : `/publications/prisoners-of-isolation/chapter-${slug}/${c.data.subsection_slug}/`;
+    return { title: label, href };
+  }
+
+  // Full book-wide sequence (preface → chapters 1-7)
+  const poiAll = allChapters
+    .filter(c => c.data.book === 'prisoners-of-isolation' && c.data.subsection_slug != null)
+    .sort((a, b) => {
+      const [ca, ua] = sortKey(a);
+      const [cb, ub] = sortKey(b);
+      return ca !== cb ? ca - cb : ua - ub;
+    });
+
+  return poiAll
+    .filter(c => c.data.chapter_slug !== 'preface' && c.data.chapter_slug != null)
+    .map(c => {
+      const i = poiAll.indexOf(c);
+      return {
         params: {
           slug:       c.data.chapter_slug!,
           subsection: c.data.subsection_slug!,
         },
         props: {
           chapter: c,
-          prev: i > 0 ? {
-            title: siblings[i - 1].data.subsection_title ?? siblings[i - 1].data.title,
-            href: `${baseUrl}/${siblings[i - 1].data.subsection_slug}/`,
-          } : null,
-          next: i < siblings.length - 1 ? {
-            title: siblings[i + 1].data.subsection_title ?? siblings[i + 1].data.title,
-            href: `${baseUrl}/${siblings[i + 1].data.subsection_slug}/`,
-          } : null,
+          prev: i > 0 ? navLink(poiAll[i - 1]) : null,
+          next: i < poiAll.length - 1 ? navLink(poiAll[i + 1]) : null,
         },
-      });
-    }
-  }
-  return paths;
+      };
+    });
 }
 
 const { chapter, prev, next } = Astro.props;
