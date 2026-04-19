@@ -58,7 +58,7 @@ function stripMatchingHeadings(body, subsectionSlug) {
   // Subsequent headings with the same text are real content, not page-title echoes.
   // The continuation group matches ALL-CAPS lines AND lines like "v. THE QUEEN"
   // (single lowercase abbreviation + period) that are wrapped title tails.
-  return body.replace(
+  let result = body.replace(
     /^([ \t]*#{1,3}[ \t]+.+\r?\n?)([A-Z][^a-z\n]*\r?\n|[a-z]\.[^a-z\n]*\r?\n)?/m,
     (match, headingLine, continuationLine) => {
       const headingText = headingLine.replace(/^[ \t]*#{1,3}[ \t]+/, '').replace(/\r?\n$/, '').trim();
@@ -69,6 +69,57 @@ function stripMatchingHeadings(body, subsectionSlug) {
       return ''; // strip heading + optional ALL-CAPS continuation line
     }
   );
+
+  return result;
+}
+
+function stripTopCapsFragments(body) {
+  // Some scraped pages have bare ALL-CAPS title/navigation lines at the very
+  // top of the body (chapter titles, breadcrumb echoes) that aren't wrapped in
+  // a markdown heading. Strip any run of ALL-CAPS-only lines (no lowercase) that
+  // appear before the first prose paragraph or markdown heading.
+  const lines = body.split('\n');
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    if (!line) { i++; continue; }                        // skip blank lines
+    if (!/[a-z]/.test(line) && line.length >= 10 && !line.startsWith('#')) {
+      lines.splice(i, 1);                                // remove ALL-CAPS line
+      while (i < lines.length && !lines[i].trim()) lines.splice(i, 1); // and following blanks
+    } else {
+      break;                                             // first prose/heading — stop
+    }
+  }
+  return lines.join('\n');
+}
+
+function deduplicateParagraphs(body) {
+  // Multi-page chapters were stitched by the scraper, sometimes duplicating
+  // paragraphs that appeared at a page boundary. Remove any paragraph whose
+  // first 120 characters match one already seen earlier in the same file.
+  // Only considers substantive paragraphs (> 80 chars) to avoid false positives
+  // on short headings or single-line fragments.
+  const blocks = body.split(/(\n{2,})/); // split preserving separators
+  const seen = new Set();
+  const result = [];
+
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    // Odd-indexed entries are the separators (\n\n etc.) — always keep them
+    if (i % 2 === 1) {
+      result.push(block);
+      continue;
+    }
+    const text = block.trim();
+    if (text.length > 80) {
+      const key = text.slice(0, 120);
+      if (seen.has(key)) continue; // skip duplicate
+      seen.add(key);
+    }
+    result.push(block);
+  }
+
+  return result.join('');
 }
 
 function sanitizeMdx(content) {
@@ -78,10 +129,12 @@ function sanitizeMdx(content) {
 
   const subsectionSlug = extractSubsectionSlug(frontmatter);
   const bodyStripped = stripMatchingHeadings(body, subsectionSlug);
+  const bodyCleaned = stripTopCapsFragments(bodyStripped);
+  const bodyDeduped = deduplicateParagraphs(bodyCleaned);
 
   // Escape `<` that appear mid-word only when NOT followed by a known HTML tag.
   // This catches OCR artifacts (fO<xl) but preserves real tags (behaviour<sup>).
-  let sanitized = bodyStripped.replace(/([A-Za-z0-9])<([A-Za-z][A-Za-z0-9]*)/g, (match, pre, tagName) => {
+  let sanitized = bodyDeduped.replace(/([A-Za-z0-9])<([A-Za-z][A-Za-z0-9]*)/g, (match, pre, tagName) => {
     if (HTML_TAGS.has(tagName.toLowerCase())) return match;
     return `${pre}&lt;${tagName}`;
   });
