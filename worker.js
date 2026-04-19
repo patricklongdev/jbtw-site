@@ -259,12 +259,16 @@ const CID_MAP = {
   "809": "/publications/prisoners-of-isolation/chapter-a-model-for-reform/a-model-for-reform/"
 };
 
-export async function onRequest(context) {
-  const url = new URL(context.request.url);
-  const cid = url.searchParams.get('cid');
-  const dest = CID_MAP[cid];
-  if (dest) {
-    return Response.redirect(new URL(dest, url).toString(), 301);
-  }
-  return new Response('Not found', { status: 404 });
-}
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === '/book.asp') {
+      const cid = url.searchParams.get('cid');
+      const dest = CID_MAP[cid];
+      if (dest) {
+        return Response.redirect(new URL(dest, url).toString(), 301);
+      }
+    }
+    return env.ASSETS.fetch(request);
+  },
+};
