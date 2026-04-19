@@ -54,13 +54,17 @@ function stripMatchingHeadings(body, subsectionSlug) {
   // "isoolation" vs "isolation". Leading articles (a/an/the) are stripped
   // before comparing to handle cases like slug "a-tuesday-..." vs heading "Tuesday...".
   const normalizedSubSlug = stripLeadingArticle(subsectionSlug);
+  // No /g flag — only the first heading is a candidate for stripping.
+  // Subsequent headings with the same text are real content, not page-title echoes.
+  // The continuation group matches ALL-CAPS lines AND lines like "v. THE QUEEN"
+  // (single lowercase abbreviation + period) that are wrapped title tails.
   return body.replace(
-    /^([ \t]*#{1,3}[ \t]+.+\r?\n?)([A-Z][^a-z\n]*\r?\n)?/gm,
+    /^([ \t]*#{1,3}[ \t]+.+\r?\n?)([A-Z][^a-z\n]*\r?\n|[a-z]\.[^a-z\n]*\r?\n)?/m,
     (match, headingLine, continuationLine) => {
       const headingText = headingLine.replace(/^[ \t]*#{1,3}[ \t]+/, '').replace(/\r?\n$/, '').trim();
       const headingSlug = stripLeadingArticle(slugify(headingText));
       const compareLen = Math.min(headingSlug.length, normalizedSubSlug.length, 30);
-      if (compareLen < 20) return match;
+      if (compareLen < 15) return match;
       if (headingSlug.slice(0, compareLen) !== normalizedSubSlug.slice(0, compareLen)) return match;
       return ''; // strip heading + optional ALL-CAPS continuation line
     }
