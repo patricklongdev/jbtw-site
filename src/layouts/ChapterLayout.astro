@@ -74,16 +74,20 @@ const pageTitle = subsection_title
     <main data-pagefind-body>
       <h1>{subsection_title ?? title}</h1>
       <slot />
+      {(prev || next) && (
+        <nav aria-label="Sub-section navigation">
+          {prev && <a href={prev.href} rel="prev">← {prev.title}</a>}
+          {next && <a href={next.href} rel="next">{next.title} →</a>}
+        </nav>
+      )}
     </main>
-    {(prev || next) && (
-      <nav aria-label="Sub-section navigation">
-        {prev && <a href={prev.href} rel="prev">← {prev.title}</a>}
-        {next && <a href={next.href} rel="next">{next.title} →</a>}
-      </nav>
-    )}
     <script src="/pagefind/pagefind-ui.js" is:inline></script>
     <script is:inline>
       new PagefindUI({ element: '#search', showSubResults: true });
+      // Hoist sub-section nav before footnotes when both are present
+      const nav = document.querySelector('nav[aria-label="Sub-section navigation"]');
+      const footnotes = document.querySelector('[data-footnotes]');
+      if (nav && footnotes) footnotes.before(nav);
     </script>
   </body>
 </html>
