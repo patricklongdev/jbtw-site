@@ -1,0 +1,108 @@
+---
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+
+const indexData: { term: string; refs: { href: string }[] }[] = JSON.parse(
+  readFileSync(join(process.cwd(), '../output/index-jbtw.json'), 'utf8')
+);
+
+const allChapters = await getCollection('chapters');
+const jbtwChapters = allChapters.filter(c => c.data.book === 'justice-behind-the-walls');
+
+// Count subsections per chapter (to detect single vs. multi)
+const chapterSubcounts = new Map<string, number>();
+for (const c of jbtwChapters) {
+  if (!c.data.chapter_slug || !c.data.subsection_slug) continue;
+  const key = c.data.chapter_slug;
+  chapterSubcounts.set(key, (chapterSubcounts.get(key) ?? 0) + 1);
+}
+
+function buildUrl(c: typeof jbtwChapters[number]): string {
+  const base = '/publications/justice-behind-the-walls';
+  const { chapter_slug: cs, subsection_slug: ss, sector_number: sn } = c.data;
+  if (cs === 'introduction') return `${base}/introduction/${ss}/`;
+  if (cs === 'conclusion')   return `${base}/conclusion/`;
+  const isSingle = (chapterSubcounts.get(cs!) ?? 1) === 1;
+  if (isSingle) return `${base}/sector-${sn}/chapter-${cs}/`;
+  return `${base}/sector-${sn}/chapter-${cs}/${ss}/`;
+}
+
+// CID → {url, title}
+const cidMap = new Map<string, { url: string; title: string }>();
+for (const c of jbtwChapters) {
+  if (!c.data.cid) continue;
+  cidMap.set(String(c.data.cid), {
+    url: buildUrl(c),
+    title: c.data.subsection_title || c.data.title || '',
+  });
+}
+
+function extractCid(href: string): string | null {
+  return href.match(/[?&]cid=(\d+)/)?.[1] ?? null;
+}
+
+function groupLetter(term: string): string {
+  const ch = term.trim()[0]?.toUpperCase() ?? '#';
+  return /[A-Z]/.test(ch) ? ch : '#';
+}
+
+// Deduplicate refs by CID per term
+interface IndexEntry { term: string; letter: string; links: { url: string; title: string }[] }
+const processedTerms: IndexEntry[] = [];
+
+for (const entry of indexData) {
+  const term = entry.term.trim();
+  const seenCids = new Set<string>();
+  const links: { url: string; title: string }[] = [];
+  for (const ref of entry.refs) {
+    const cid = extractCid(ref.href);
+    if (!cid || seenCids.has(cid)) continue;
+    seenCids.add(cid);
+    const mapped = cidMap.get(cid);
+    if (mapped) links.push(mapped);
+  }
+  if (links.length === 0) continue;
+  processedTerms.push({ term, letter: groupLetter(term), links });
+}
+
+// Group by letter, sorted
+const grouped = new Map<string, IndexEntry[]>();
+for (const e of processedTerms) {
+  (grouped.get(e.letter) ?? grouped.set(e.letter, []).get(e.letter)!).push(e);
+}
+const letters = [...grouped.keys()].sort();
+---
+
+<BaseLayout title="Subject Index — Justice Behind the Walls">
+  <div class="index-page">
+    <p class="book-byline"><a href="/publications/justice-behind-the-walls/">← Justice Behind the Walls</a></p>
+    <h1>Subject Index</h1>
+
+    <nav class="alpha-nav" aria-label="Jump to letter">
+      {letters.map(l => <a href={`#letter-${l}`}>{l}</a>)}
+    </nav>
+
+    {letters.map(letter => (
+      <section class="alpha-section" id={`letter-${letter}`}>
+        <h2 class="alpha-heading">{letter}</h2>
+        <dl class="index-list">
+          {grouped.get(letter)!.map(entry => (
+            <>
+              <dt>{entry.term}</dt>
+              <dd>
+                {entry.links.map((link, i) => (
+                  <>
+                    {i > 0 && <span class="ref-sep"> · </span>}
+                    <a href={link.url}>{link.title}</a>
+                  </>
+                ))}
+              </dd>
+            </>
+          ))}
+        </dl>
+      </section>
+    ))}
+  </div>
+</BaseLayout>

@@ -330,3 +330,49 @@ main > ol > li > ol {
   font-size: 0.778rem;
   color: #999;
 }
+
+/* ── Subject index ──────────────────────────────────────────────────── */
+.index-page { max-width: 72ch; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.index-page h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+.index-page .book-byline { font-family: system-ui, sans-serif; font-size: 0.875rem; margin-bottom: 1.5rem; }
+
+.alpha-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 1.5rem 0 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+.alpha-nav a { color: #1a4a7a; text-decoration: none; padding: 0.1rem 0.35rem; border-radius: 2px; }
+.alpha-nav a:hover { background: #eef3f9; }
+
+.alpha-section { margin-bottom: 2.5rem; }
+
+.alpha-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a4a7a;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid #ddd;
+}
+
+.index-list { display: grid; grid-template-columns: 1fr; gap: 0; }
+.index-list dt {
+  font-weight: 600;
+  margin-top: 0.6rem;
+  font-size: 0.944rem;
+}
+.index-list dd {
+  margin-left: 1.5rem;
+  font-size: 0.889rem;
+  color: #333;
+  line-height: 1.5;
+}
+.index-list dd a { color: #1a4a7a; }
+.index-list dd a:hover { text-decoration: underline; }
+.ref-sep { color: #999; }
