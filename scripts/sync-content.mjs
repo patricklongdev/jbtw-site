@@ -43,16 +43,22 @@ function slugify(text) {
 
 function stripMatchingHeadings(body, subsectionSlug) {
   if (!subsectionSlug) return body;
-  // Strip headings whose slugified text is a prefix of the subsection slug (≥20 chars).
-  // The old ASP site repeated the section title at the top of each paginated page;
-  // OCR artifacts (apostrophes → nothing) and line-wrapping mean exact text match fails.
-  // Use a greedy match and extract heading text from the full match string.
-  return body.replace(/^[ \t]*#{1,3}[ \t]+.+\r?\n?/gim, (match) => {
-    const headingText = match.replace(/^[ \t]*#{1,3}[ \t]+/, '').replace(/\r?\n$/, '').trim();
-    const headingSlug = slugify(headingText);
-    if (headingSlug.length >= 20 && subsectionSlug.startsWith(headingSlug)) return '';
-    return match;
-  });
+  // Strip section-title headings repeated at the top of each scraped page.
+  // Also strips an immediately-following ALL-CAPS line (orphaned second line of
+  // a wrapped heading, e.g. "CANADA'S 'RADICAL' REFORM" after the ## line).
+  // Comparison uses the first 30 slug chars to tolerate OCR variants like
+  // "isoolation" vs "isolation".
+  return body.replace(
+    /^([ \t]*#{1,3}[ \t]+.+\r?\n?)([A-Z][^a-z\n]*\r?\n)?/gm,
+    (match, headingLine, continuationLine) => {
+      const headingText = headingLine.replace(/^[ \t]*#{1,3}[ \t]+/, '').replace(/\r?\n$/, '').trim();
+      const headingSlug = slugify(headingText);
+      const compareLen = Math.min(headingSlug.length, subsectionSlug.length, 30);
+      if (compareLen < 20) return match;
+      if (headingSlug.slice(0, compareLen) !== subsectionSlug.slice(0, compareLen)) return match;
+      return ''; // strip heading + optional ALL-CAPS continuation line
+    }
+  );
 }
 
 function sanitizeMdx(content) {
