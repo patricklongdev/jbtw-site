@@ -1,17 +1,6 @@
 ---
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-
-const data = JSON.parse(
-  readFileSync(join(process.cwd(), '../output/gallery/captions.json'), 'utf8')
-) as {
-  sections: {
-    id: string;
-    title: string;
-    images: { filename: string; caption: string }[];
-  }[];
-};
+import data from '../../data/gallery-captions.json';
 
 function imageUrl(sectionId: string, filename: string): string {
   return `/gallery/${sectionId}/${filename}`;
