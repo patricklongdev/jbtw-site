@@ -442,3 +442,12 @@ main > ol > li > ol {
   border-color: #ddd;
   border-bottom-color: #fff;
 }
+
+/* ── Appendix legislative text ──────────────────────────────────────── */
+.appendix h2 { font-size: 1.15rem; margin: 2rem 0 0.5rem; }
+.appendix h3 { font-size: 1rem; font-weight: 700; margin: 1.5rem 0 0.25rem; }
+.appendix h4 { font-size: 1rem; font-style: italic; margin: 1rem 0 0.25rem; }
+
+.appendix .leg-1 { margin: 0.5rem 0 0.5rem 1.5rem; }
+.appendix .leg-2 { margin: 0.5rem 0 0.5rem 3rem; }
+.appendix .leg-3 { margin: 0.5rem 0 0.5rem 4.5rem; }

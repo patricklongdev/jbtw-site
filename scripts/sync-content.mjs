@@ -171,3 +171,18 @@ for (const file of caseFiles) {
   caseCopied++;
 }
 console.log(`sync-content: ${caseCopied} case-law JSON files → src/content/case-law/`);
+
+// Sync appendix JSON data files
+const APPENDIX_SOURCE = join(__dirname, '../../output/appendix-data');
+const APPENDIX_DEST = join(__dirname, '../src/content/appendices');
+await mkdir(APPENDIX_DEST, { recursive: true });
+
+const appendixFiles = await readdir(APPENDIX_SOURCE).catch(() => []);
+let appendixCopied = 0;
+for (const file of appendixFiles) {
+  if (!file.endsWith('.json')) continue;
+  const raw = await readFile(join(APPENDIX_SOURCE, file), 'utf8');
+  await writeFile(join(APPENDIX_DEST, file), raw, 'utf8');
+  appendixCopied++;
+}
+console.log(`sync-content: ${appendixCopied} appendix JSON files → src/content/appendices/`);

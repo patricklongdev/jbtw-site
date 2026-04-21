@@ -1,0 +1,29 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const appendices = await getCollection('appendices');
+  return appendices.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { title, body_html } = entry.data;
+---
+
+<BaseLayout title={`${title} — Justice Behind the Walls`}>
+  <nav aria-label="Breadcrumb">
+    <ol>
+      <li><a href="/">Home</a> <span aria-hidden="true"> › </span></li>
+      <li><a href="/resources/">Resources</a> <span aria-hidden="true"> › </span></li>
+      <li>{title}</li>
+    </ol>
+  </nav>
+  <article class="appendix">
+    <h1>{title}</h1>
+    <div class="body" set:html={body_html} />
+  </article>
+</BaseLayout>
