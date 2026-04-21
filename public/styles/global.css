@@ -333,7 +333,7 @@ main > ol > li > ol {
 }
 
 /* ── Subject index ──────────────────────────────────────────────────── */
-.index-page { max-width: 72ch; margin: 0 auto; padding: 0 1.5rem 4rem; }
+.index-page { max-width: 72ch; margin: 0 auto; padding: 0 0 4rem; }
 .index-page .book-byline { font-family: system-ui, sans-serif; font-size: 0.875rem; margin-bottom: 1.5rem; }
 
 .alpha-nav {
