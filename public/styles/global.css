@@ -162,6 +162,8 @@ nav[aria-label="Breadcrumb"] a {
 nav[aria-label="Breadcrumb"] a:visited { color: #1a4a7a; }
 nav[aria-label="Breadcrumb"] a:hover   { text-decoration: underline; }
 
+nav[aria-label="Breadcrumb"] span[aria-hidden="true"] { padding: 0 0.35rem; }
+
 /* ── Prev / Next ────────────────────────────────────────────────────── */
 nav[aria-label="Sub-section navigation"] {
   display: flex;
