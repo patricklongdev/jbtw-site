@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const books = [
+  {
+    title: 'Justice Behind the Walls',
+    subtitle: 'Human Rights in Canadian Prisons',
+    description: 'A comprehensive account of three decades inside Canada\'s federal prisons — examining disciplinary hearings, administrative segregation, transfers, and the long struggle to bring the rule of law behind prison walls.',
+    href: '/publications/justice-behind-the-walls/',
+  },
+  {
+    title: 'Prisoners of Isolation',
+    subtitle: 'Solitary Confinement in Canada',
+    description: 'The landmark study that shaped Canadian prison law, centred on McCann v. The Queen — the first case in which a Canadian court heard extensive evidence from prisoners about the conditions of solitary confinement.',
+    href: '/publications/prisoners-of-isolation/',
+  },
+];
+---
+
+<BaseLayout title="Publications">
+  <section class="home-intro">
+    <h1>Publications</h1>
+    <p class="home-intro__byline">By Michael Jackson, O.C., Q.C.</p>
+  </section>
+
+  <section class="home-books">
+    {books.map(book => (
+      <article class="book-card">
+        <h2><a href={book.href}>{book.title}</a></h2>
+        <p class="book-card__subtitle">{book.subtitle}</p>
+        <p>{book.description}</p>
+        <a href={book.href} class="book-card__cta">Read →</a>
+      </article>
+    ))}
+  </section>
+</BaseLayout>

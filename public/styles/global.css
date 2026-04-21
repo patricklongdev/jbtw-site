@@ -333,7 +333,7 @@ main > ol > li > ol {
 
 /* ── Subject index ──────────────────────────────────────────────────── */
 .index-page { max-width: 72ch; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-.index-page h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+.index-page h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
 .index-page .book-byline { font-family: system-ui, sans-serif; font-size: 0.875rem; margin-bottom: 1.5rem; }
 
 .alpha-nav {
@@ -376,3 +376,69 @@ main > ol > li > ol {
 .index-list dd a { color: #1a4a7a; }
 .index-list dd a:hover { text-decoration: underline; }
 .ref-sep { color: #999; }
+
+/* ── Gallery ─────────────────────────────────────────────────────────── */
+.gallery-section { margin-bottom: 4rem; }
+
+.gallery-section__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #ddd;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.gallery-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.gallery-item figcaption {
+  font-size: 0.833rem;
+  line-height: 1.55;
+  color: #444;
+  white-space: pre-line;
+}
+
+/* ── Book tabs ───────────────────────────────────────────────────────────── */
+.book-tabs {
+  display: flex;
+  gap: 0;
+  margin: 1rem 0 2rem;
+  border-bottom: 2px solid #ddd;
+}
+
+.book-tab {
+  padding: 0.45rem 1.1rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.889rem;
+  font-weight: 600;
+  color: #555;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  margin-bottom: -2px;
+  border-radius: 4px 4px 0 0;
+}
+
+.book-tab:hover { color: #1a4a7a; }
+
+.book-tab[aria-current="page"] {
+  color: #1a1a1a;
+  background: #fff;
+  border-color: #ddd;
+  border-bottom-color: #fff;
+}

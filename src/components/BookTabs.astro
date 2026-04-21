@@ -1,0 +1,24 @@
+---
+interface Props {
+  base: string;   // e.g. '/publications/justice-behind-the-walls'
+}
+const { base } = Astro.props;
+const { pathname } = Astro.url;
+
+const tabs = [
+  { label: 'Contents', href: `${base}/` },
+  { label: 'Index',    href: `${base}/subject-index/` },
+];
+---
+
+<nav class="book-tabs" aria-label="Book sections">
+  {tabs.map(tab => (
+    <a
+      href={tab.href}
+      class="book-tab"
+      aria-current={pathname === tab.href ? 'page' : undefined}
+    >
+      {tab.label}
+    </a>
+  ))}
+</nav>

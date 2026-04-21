@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import BookTabs from '../../../components/BookTabs.astro';
 
 const allChapters = await getCollection('chapters');
 
@@ -68,6 +69,7 @@ const conclusionSubs = allChapters
 
 <BaseLayout title="Justice Behind the Walls">
       <h1>Justice Behind the Walls</h1>
+      <BookTabs base="/publications/justice-behind-the-walls" />
 
       {/* Introduction */}
       <section>
@@ -130,8 +132,5 @@ const conclusionSubs = allChapters
         </section>
       )}
 
-      <section>
-        <h2>Subject Index</h2>
-        <p><a href="/publications/justice-behind-the-walls/subject-index/">Alphabetical index of subjects →</a></p>
-      </section>
+
 </BaseLayout>

@@ -1,0 +1,41 @@
+---
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const data = JSON.parse(
+  readFileSync(join(process.cwd(), '../output/gallery/captions.json'), 'utf8')
+) as {
+  sections: {
+    id: string;
+    title: string;
+    images: { filename: string; caption: string }[];
+  }[];
+};
+
+function imageUrl(sectionId: string, filename: string): string {
+  return `/gallery/${sectionId}/${filename}`;
+}
+---
+
+<BaseLayout title="Gallery — Justice Behind the Walls">
+  <h1>Gallery</h1>
+
+  {data.sections.map(section => (
+    <section class="gallery-section" id={section.id}>
+      <h2 class="gallery-section__title">{section.title}</h2>
+      <div class="gallery-grid">
+        {section.images.map(img => (
+          <figure class="gallery-item">
+            <img
+              src={imageUrl(section.id, img.filename)}
+              alt={img.caption}
+              loading="lazy"
+            />
+            <figcaption>{img.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+  ))}
+</BaseLayout>

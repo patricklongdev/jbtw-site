@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import BookTabs from '../../../components/BookTabs.astro';
 
 const allChapters = await getCollection('chapters');
 
@@ -48,7 +49,8 @@ const chapters = [...chapterMap.values()].sort((a, b) => a.chapterNumber - b.cha
 ---
 
 <BaseLayout title="Prisoners of Isolation">
-      <h1>Prisoners of Isolation: Solitary Confinement in Canada</h1>
+      <h1>Prisoners of Isolation</h1>
+      <BookTabs base="/publications/prisoners-of-isolation" />
 
       {/* Preface */}
       {prefaceSubs.length > 0 && (
@@ -94,8 +96,4 @@ const chapters = [...chapterMap.values()].sort((a, b) => a.chapterNumber - b.cha
         </ol>
       </section>
 
-      <section>
-        <h2>Subject Index</h2>
-        <p><a href="/publications/prisoners-of-isolation/subject-index/">Alphabetical index of subjects →</a></p>
-      </section>
 </BaseLayout>

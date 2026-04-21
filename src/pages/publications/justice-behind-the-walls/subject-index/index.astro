@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import BookTabs from '../../../../components/BookTabs.astro';
 
 const indexData: { term: string; refs: { href: string }[] }[] = JSON.parse(
   readFileSync(join(process.cwd(), '../output/index-jbtw.json'), 'utf8')
@@ -77,8 +78,8 @@ const letters = [...grouped.keys()].sort();
 
 <BaseLayout title="Subject Index — Justice Behind the Walls">
   <div class="index-page">
-    <p class="book-byline"><a href="/publications/justice-behind-the-walls/">← Justice Behind the Walls</a></p>
-    <h1>Subject Index</h1>
+    <h1>Justice Behind the Walls</h1>
+    <BookTabs base="/publications/justice-behind-the-walls" />
 
     <nav class="alpha-nav" aria-label="Jump to letter">
       {letters.map(l => <a href={`#letter-${l}`}>{l}</a>)}
