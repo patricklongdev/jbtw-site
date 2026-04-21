@@ -41,9 +41,15 @@ function chapterUrl(): string {
   return `/publications/prisoners-of-isolation/chapter-${chapter_slug}/`;
 }
 
+const sectorCrumb: Array<{ label: string; href?: string }> =
+  book === 'justice-behind-the-walls' && sector_number
+    ? [{ label: `Sector ${sector_number}` }]
+    : [];
+
 const crumbs: Array<{ label: string; href?: string }> = [
   { label: 'Home', href: '/' },
   { label: bookTitle, href: bookUrl },
+  ...sectorCrumb,
   ...(chapter
     ? isSingleSubsection
       ? [{ label: chapter }]

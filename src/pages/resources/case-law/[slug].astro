@@ -15,6 +15,14 @@ const { case_name, parties, citation, court, body_html } = entry.data;
 ---
 
 <BaseLayout title={`${case_name} — Case Law`}>
+  <nav aria-label="Breadcrumb">
+    <ol>
+      <li><a href="/">Home</a> <span aria-hidden="true"> › </span></li>
+      <li><a href="/resources/">Resources</a> <span aria-hidden="true"> › </span></li>
+      <li><a href="/resources/case-law/">Case Law</a> <span aria-hidden="true"> › </span></li>
+      <li>{case_name}</li>
+    </ol>
+  </nav>
   <article class="case-law">
     <header>
       <h1>{case_name}</h1>
