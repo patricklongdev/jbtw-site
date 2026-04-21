@@ -451,3 +451,28 @@ main > ol > li > ol {
 .appendix .leg-1 { margin: 0.5rem 0 0.5rem 1.5rem; }
 .appendix .leg-2 { margin: 0.5rem 0 0.5rem 3rem; }
 .appendix .leg-3 { margin: 0.5rem 0 0.5rem 4.5rem; }
+
+/* ── Gallery jump nav ───────────────────────────────────────────────── */
+.gallery-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.gallery-nav a {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid #ccc;
+  border-radius: 2rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.875rem;
+  color: #1a4a7a;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.gallery-nav a:hover {
+  background: #1a4a7a;
+  border-color: #1a4a7a;
+  color: #fff;
+}

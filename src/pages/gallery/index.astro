@@ -10,6 +10,12 @@ function imageUrl(sectionId: string, filename: string): string {
 <BaseLayout title="Gallery — Justice Behind the Walls">
   <h1>Gallery</h1>
 
+  <nav aria-label="Gallery sections" class="gallery-nav">
+    {data.sections.map(section => (
+      <a href={`#${section.id}`}>{section.title}</a>
+    ))}
+  </nav>
+
   {data.sections.map(section => (
     <section class="gallery-section" id={section.id}>
       <h2 class="gallery-section__title">{section.title}</h2>
