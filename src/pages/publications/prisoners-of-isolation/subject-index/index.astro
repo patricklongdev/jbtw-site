@@ -1,13 +1,10 @@
 ---
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../../layouts/BaseLayout.astro';
 import BookTabs from '../../../../components/BookTabs.astro';
+import indexDataRaw from '../../../../data/index-poi.json';
 
-const indexData: { term: string; refs: { href: string }[] }[] = JSON.parse(
-  readFileSync(join(process.cwd(), '../output/index-poi.json'), 'utf8')
-);
+const indexData = indexDataRaw as { term: string; refs: { href: string }[] }[];
 
 const allChapters = await getCollection('chapters');
 const poiChapters = allChapters.filter(c => c.data.book === 'prisoners-of-isolation');
