@@ -21,4 +21,17 @@ const chapters = defineCollection({
   }),
 });
 
-export const collections = { chapters };
+const caseLaw = defineCollection({
+  type: 'data',
+  schema: z.object({
+    slug: z.string(),
+    case_name: z.string(),
+    parties: z.string().optional(),
+    citation: z.string().optional(),
+    court: z.string().optional(),
+    source_file: z.string().optional(),
+    body_html: z.string(),
+  }),
+});
+
+export const collections = { chapters, 'case-law': caseLaw };

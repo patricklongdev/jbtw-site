@@ -1,23 +1,29 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-  // Populated once case-law MDX files are added to src/content/case-law/
-  return [];
+  const cases = await getCollection('case-law');
+  return cases.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
 }
 
-const { slug } = Astro.params;
+const { entry } = Astro.props;
+const { case_name, parties, citation, court, body_html } = entry.data;
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Case Law</title>
-  </head>
-  <body>
-    <main>
-      <p>Case law content coming soon.</p>
-    </main>
-  </body>
-</html>
+<BaseLayout title={`${case_name} — Case Law`}>
+  <article class="case-law">
+    <header>
+      <h1>{case_name}</h1>
+      {parties && <p class="parties">{parties}</p>}
+      <dl class="meta">
+        {citation && <><dt>Citation</dt><dd>{citation}</dd></>}
+        {court && <><dt>Court</dt><dd>{court}</dd></>}
+      </dl>
+    </header>
+    <div class="body" set:html={body_html} />
+  </article>
+</BaseLayout>

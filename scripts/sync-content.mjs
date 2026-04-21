@@ -156,3 +156,18 @@ for (const file of files) {
 }
 
 console.log(`sync-content: ${copied} MDX files → src/content/chapters/`);
+
+// Sync case-law JSON data files (lightweight data collection, avoids MDX compile overhead)
+const CASE_LAW_SOURCE = join(__dirname, '../../output/case-law-data');
+const CASE_LAW_DEST = join(__dirname, '../src/content/case-law');
+await mkdir(CASE_LAW_DEST, { recursive: true });
+
+const caseFiles = await readdir(CASE_LAW_SOURCE).catch(() => []);
+let caseCopied = 0;
+for (const file of caseFiles) {
+  if (!file.endsWith('.json')) continue;
+  const raw = await readFile(join(CASE_LAW_SOURCE, file), 'utf8');
+  await writeFile(join(CASE_LAW_DEST, file), raw, 'utf8');
+  caseCopied++;
+}
+console.log(`sync-content: ${caseCopied} case-law JSON files → src/content/case-law/`);

@@ -1,0 +1,22 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+const cases = await getCollection('case-law');
+const sorted = cases.sort((a, b) =>
+  a.data.case_name.localeCompare(b.data.case_name)
+);
+---
+
+<BaseLayout title="Case Law — Justice Behind the Walls">
+  <h1>Case Law</h1>
+  <p>Cases cited in <em>Justice Behind the Walls</em> and <em>Prisoners of Isolation</em>.</p>
+  <ul>
+    {sorted.map((entry) => (
+      <li>
+        <a href={`/resources/case-law/${entry.data.slug}/`}>{entry.data.case_name}</a>
+        {entry.data.citation && <span class="citation"> — {entry.data.citation}</span>}
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
