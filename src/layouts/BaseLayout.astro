@@ -17,6 +17,7 @@ const { title } = Astro.props;
   </head>
   <body>
     <SiteNav />
+    <slot name="before-main" />
     <main>
       <slot />
     </main>

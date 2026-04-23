@@ -1,37 +1,21 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-const books = [
-  {
-    title: 'Justice Behind the Walls',
-    subtitle: 'Human Rights in Canadian Prisons',
-    description: 'A comprehensive account of three decades inside Canada\'s federal prisons — examining disciplinary hearings, administrative segregation, transfers, and the long struggle to bring the rule of law behind prison walls.',
-    href: '/publications/justice-behind-the-walls/',
-  },
-  {
-    title: 'Prisoners of Isolation',
-    subtitle: 'Solitary Confinement in Canada',
-    description: 'The landmark study that shaped Canadian prison law, centred on McCann v. The Queen — the first case in which a Canadian court heard extensive evidence from prisoners about the conditions of solitary confinement.',
-    href: '/publications/prisoners-of-isolation/',
-  },
-];
 ---
 
 <BaseLayout title="Justice Behind the Walls">
-  <section class="home-intro">
-    <h1>Justice Behind the Walls</h1>
-    <p class="home-intro__byline">By Michael Jackson, O.C., Q.C.</p>
-    <p>The online home of two foundational works on prisoners' rights and prison law in Canada.</p>
-  </section>
+  <div slot="before-main" class="home-hero">
+    <img
+      src="/images/JWTW_hero_01.jpg"
+      alt="Chain-link fence with razor wire in front of a federal prison building"
+      class="home-hero__img"
+    />
+    <div class="home-hero__overlay">
+      <h1 class="home-hero__title">Justice Behind the Walls</h1>
+      <p class="home-hero__byline">By Michael Jackson, O.C., Q.C.</p>
+    </div>
+  </div>
 
-  <section class="home-books">
-    {books.map(book => (
-      <article class="book-card">
-        <h2><a href={book.href}>{book.title}</a></h2>
-        <p class="book-card__subtitle">{book.subtitle}</p>
-        <p>{book.description}</p>
-        <a href={book.href} class="book-card__cta">Read →</a>
-      </article>
-    ))}
+  <section class="home-intro">
+    <p>The online home of two foundational works on prisoners' rights and prison law in Canada.</p>
   </section>
 </BaseLayout>
