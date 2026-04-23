@@ -26,7 +26,7 @@ body {
 }
 
 .site-nav__logo { display: flex; align-items: center; line-height: 0; }
-.site-nav__logo img { height: 36px; width: auto; display: block; }
+.site-nav__logo img { height: 44px; width: auto; display: block; }
 
 .site-nav__name {
   font-family: system-ui, sans-serif;
