@@ -14,7 +14,12 @@ const links = [
   <a href="/" class="site-nav__logo" aria-label="Justice Behind the Walls — home">
     <img src="/jbtw-logo.svg" alt="Justice Behind the Walls" height="36" />
   </a>
-  <ul class="site-nav__links">
+
+  <button class="site-nav__burger" aria-expanded="false" aria-controls="site-nav-links" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <ul class="site-nav__links" id="site-nav-links">
     {links.map(link => (
       <li>
         <a
@@ -27,3 +32,15 @@ const links = [
     ))}
   </ul>
 </nav>
+
+<script>
+  const burger = document.querySelector('.site-nav__burger') as HTMLButtonElement;
+  const menu   = document.getElementById('site-nav-links')!;
+
+  burger.addEventListener('click', () => {
+    const open = burger.getAttribute('aria-expanded') === 'true';
+    burger.setAttribute('aria-expanded', String(!open));
+    burger.setAttribute('aria-label', open ? 'Open menu' : 'Close menu');
+    menu.classList.toggle('is-open', !open);
+  });
+</script>
