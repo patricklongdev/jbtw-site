@@ -24,6 +24,9 @@ body {
   border-bottom: 1px solid #ddd;
 }
 
+.site-nav__logo { display: flex; align-items: center; line-height: 0; }
+.site-nav__logo img { height: 36px; width: auto; display: block; }
+
 .site-nav__name {
   font-family: system-ui, sans-serif;
   font-size: 0.9rem;
