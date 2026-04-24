@@ -44,4 +44,13 @@ const appendices = defineCollection({
   }),
 });
 
-export const collections = { chapters, 'case-law': caseLaw, appendices };
+const arbourReport = defineCollection({
+  type: 'data',
+  schema: z.object({
+    slug: z.string(),
+    title: z.string(),
+    body_html: z.string(),
+  }),
+});
+
+export const collections = { chapters, 'case-law': caseLaw, appendices, 'arbour-report': arbourReport };

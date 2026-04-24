@@ -186,3 +186,18 @@ for (const file of appendixFiles) {
   appendixCopied++;
 }
 console.log(`sync-content: ${appendixCopied} appendix JSON files → src/content/appendices/`);
+
+// Sync Arbour Report JSON data files
+const ARBOUR_SOURCE = join(__dirname, '../../output/arbour-data');
+const ARBOUR_DEST = join(__dirname, '../src/content/arbour-report');
+await mkdir(ARBOUR_DEST, { recursive: true });
+
+const arbourFiles = await readdir(ARBOUR_SOURCE).catch(() => []);
+let arbourCopied = 0;
+for (const file of arbourFiles) {
+  if (!file.endsWith('.json')) continue;
+  const raw = await readFile(join(ARBOUR_SOURCE, file), 'utf8');
+  await writeFile(join(ARBOUR_DEST, file), raw, 'utf8');
+  arbourCopied++;
+}
+console.log(`sync-content: ${arbourCopied} Arbour Report JSON files → src/content/arbour-report/`);

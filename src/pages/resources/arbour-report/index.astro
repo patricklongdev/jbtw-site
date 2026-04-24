@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+const sections = [
+  { slug: 'front-matter', label: 'Prefatory Material', desc: 'Terms of Reference, Preface, The Inquiry Process, Glossary, Abbreviations' },
+  { slug: 'part-1',       label: 'Part I: The Events at the Prison for Women', desc: 'Chapters 1–2: Introduction and Factual Findings' },
+  { slug: 'part-2',       label: 'Part II: Policy Issues', desc: 'Chapters 3–4: General Correctional Issues and Women\'s Issues' },
+  { slug: 'part-3',       label: 'Part III: The Roots of Change', desc: 'Chapter 5: An Historical Perspective on the Federal Women\'s Prison' },
+  { slug: 'part-4',       label: 'Part IV: Summary of Recommendations', desc: 'The Commissioner\'s full list of recommendations' },
+  { slug: 'appendices',   label: 'Appendices', desc: 'Contractors, Witnesses, Participants, Rulings, Rules of Procedure, and more' },
+];
+---
+
+<BaseLayout title="The Arbour Report — Justice Behind the Walls">
+  <nav aria-label="Breadcrumb">
+    <ol>
+      <li><a href="/">Home</a> <span aria-hidden="true"> › </span></li>
+      <li><a href="/resources/">Resources</a> <span aria-hidden="true"> › </span></li>
+      <li>The Arbour Report</li>
+    </ol>
+  </nav>
+
+  <h1>The Arbour Report</h1>
+  <p class="arbour-meta">Commission of Inquiry into Certain Events at the Prison for Women in Kingston<br>
+  The Honourable Louise Arbour, Commissioner &mdash; 1996</p>
+
+  <p>In April 1995, Justice Louise Arbour was appointed to investigate incidents at the Prison for Women in Kingston, Ontario, beginning April 22, 1994. Her report, submitted in 1996, became a landmark document in Canadian prison law and women's corrections.</p>
+
+  <nav aria-label="Report sections">
+    <ol class="arbour-toc">
+      {sections.map(s => (
+        <li>
+          <a href={`/resources/arbour-report/${s.slug}/`}>{s.label}</a>
+          <p class="arbour-toc__desc">{s.desc}</p>
+        </li>
+      ))}
+    </ol>
+  </nav>
+</BaseLayout>

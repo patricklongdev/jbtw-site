@@ -1,0 +1,45 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const sections = await getCollection('arbour-report');
+  return sections.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { title, body_html } = entry.data;
+
+const SLUGS = ['front-matter', 'part-1', 'part-2', 'part-3', 'part-4', 'appendices'];
+const currentIndex = SLUGS.indexOf(entry.data.slug);
+const prevSlug = currentIndex > 0 ? SLUGS[currentIndex - 1] : null;
+const nextSlug = currentIndex < SLUGS.length - 1 ? SLUGS[currentIndex + 1] : null;
+---
+
+<BaseLayout title={`${title} — The Arbour Report`}>
+  <nav aria-label="Breadcrumb">
+    <ol>
+      <li><a href="/">Home</a> <span aria-hidden="true"> › </span></li>
+      <li><a href="/resources/">Resources</a> <span aria-hidden="true"> › </span></li>
+      <li><a href="/resources/arbour-report/">The Arbour Report</a> <span aria-hidden="true"> › </span></li>
+      <li>{title}</li>
+    </ol>
+  </nav>
+
+  <article class="arbour-section">
+    <h1>{title}</h1>
+    <div class="body" set:html={body_html} />
+  </article>
+
+  <nav aria-label="Sub-section navigation">
+    {prevSlug && (
+      <a href={`/resources/arbour-report/${prevSlug}/`} rel="prev">← Previous section</a>
+    )}
+    {nextSlug && (
+      <a href={`/resources/arbour-report/${nextSlug}/`} rel="next">Next section →</a>
+    )}
+  </nav>
+</BaseLayout>

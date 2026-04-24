@@ -429,6 +429,39 @@ body:has(.home-intro) > main { padding-top: 2rem; }
 
 .contact-form button:hover { background: #0d2d4f; }
 
+/* ── Arbour Report ──────────────────────────────────────────────────── */
+.arbour-meta {
+  font-family: system-ui, sans-serif;
+  font-size: 0.889rem;
+  color: #555;
+  margin-top: -0.75rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.arbour-toc {
+  margin-top: 1.5rem;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.arbour-toc li { border-top: 1px solid #eee; padding-top: 1rem; }
+.arbour-toc li:first-child { border-top: none; padding-top: 0; }
+.arbour-toc a { font-weight: 600; }
+.arbour-toc__desc {
+  font-family: system-ui, sans-serif;
+  font-size: 0.833rem;
+  color: #666;
+  margin: 0.2rem 0 0;
+}
+
+.arbour-section h2 { font-size: 1.1rem; }
+.arbour-section h3 { font-size: 1rem; font-weight: 700; margin-top: 2rem; }
+.arbour-section h4 { font-size: 0.944rem; font-weight: 700; font-style: italic; margin-top: 1.5rem; }
+
 /* ── Coming soon label ──────────────────────────────────────────────── */
 .coming-soon {
   font-family: system-ui, sans-serif;
