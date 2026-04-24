@@ -299,7 +299,7 @@ main > ol > li > ol {
 .home-hero {
   position: relative;
   width: 100%;
-  height: calc(100vh - 5rem);
+  height: calc(100svh - 5rem);
   min-height: 400px;
   overflow: hidden;
 }
@@ -317,8 +317,13 @@ main > ol > li > ol {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 2rem 1.5rem 1.75rem;
+  padding: 2rem 1.5rem calc(1.75rem + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
+}
+
+@media (max-width: 540px) {
+  .home-hero { height: calc(100svh - 4rem); }
+  .home-hero__title { font-size: 1.6rem; }
 }
 
 .home-hero__title {
