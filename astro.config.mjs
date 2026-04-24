@@ -5,4 +5,7 @@ export default defineConfig({
   integrations: [mdx()],
   output: 'static',
   trailingSlash: 'always',
+  redirects: {
+    '/resources/arbour_report/arbour_rpt.htm': '/resources/arbour-report/',
+  },
 });
