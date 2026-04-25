@@ -125,8 +125,9 @@ body {
     display: flex;
   }
 
-  .site-nav__links li { padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+  .site-nav__links li { border-bottom: 1px solid #eee; }
   .site-nav__links li:last-child { border-bottom: none; }
+  .site-nav__links li a { display: block; padding: 0.75rem 0; }
 }
 
 /* ── Page layout ────────────────────────────────────────────────────── */
