@@ -89,7 +89,7 @@ const pageTitle = subsection_title
         </ol>
       </nav>
     </header>
-    <main data-pagefind-body>
+    <main data-pagefind-body data-pagefind-filter={`publication:${bookTitle}`}>
       <h1>{subsection_title ?? title}</h1>
       <slot />
       {(prev || next) && (
