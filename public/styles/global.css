@@ -101,12 +101,12 @@ body {
     align-items: center;
   }
 
-  .site-nav__search { margin-left: auto; }
-
   .site-nav__burger {
     display: flex;
-    margin-left: 0;
+    margin-left: auto;
   }
+
+  .site-nav__search { display: none; }
 
   .site-nav__links {
     display: none;
