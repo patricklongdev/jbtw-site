@@ -23,7 +23,7 @@ const { case_name, parties, citation, court, body_html } = entry.data;
       <li>{case_name}</li>
     </ol>
   </nav>
-  <article class="case-law" data-pagefind-filter="resource:Case Law">
+  <article class="case-law" data-pagefind-body data-pagefind-filter="resource:Case Law">
     <header>
       <h1>{case_name}</h1>
       {parties && <p class="parties">{parties}</p>}

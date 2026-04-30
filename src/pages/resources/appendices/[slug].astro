@@ -22,7 +22,7 @@ const { title, body_html } = entry.data;
       <li>{title}</li>
     </ol>
   </nav>
-  <article class="appendix" data-pagefind-filter="resource:Appendices">
+  <article class="appendix" data-pagefind-body data-pagefind-filter="resource:Appendices">
     <h1>{title}</h1>
     <div class="body" set:html={body_html} />
   </article>

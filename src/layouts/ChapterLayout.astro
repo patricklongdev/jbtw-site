@@ -70,12 +70,17 @@ const pageTitle = subsection_title
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{pageTitle}</title>
     <link rel="stylesheet" href="/styles/global.css" />
-    <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
   </head>
   <body>
     <SiteNav />
+
+    <div class="search-overlay" id="search-overlay" hidden role="dialog" aria-modal="true" aria-label="Search">
+      <div class="search-modal">
+        <div id="search"></div>
+      </div>
+    </div>
+
     <header>
-      <div id="search"></div>
       <nav aria-label="Breadcrumb">
         <ol>
           {crumbs.map((crumb, i) => (
@@ -99,9 +104,64 @@ const pageTitle = subsection_title
         </nav>
       )}
     </main>
-    <script src="/pagefind/pagefind-ui.js" is:inline></script>
+    <script>
+      const searchOverlay = document.getElementById('search-overlay');
+      const searchToggle  = document.getElementById('search-toggle');
+      let pagefindLoaded  = false;
+
+      function openSearch() {
+        if (!searchOverlay) return;
+        searchOverlay.hidden = false;
+        document.body.style.overflow = 'hidden';
+        searchToggle?.setAttribute('aria-expanded', 'true');
+
+        if (!pagefindLoaded) {
+          pagefindLoaded = true;
+
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = '/pagefind/pagefind-ui.css';
+          document.head.appendChild(link);
+
+          const script = document.createElement('script');
+          script.src = '/pagefind/pagefind-ui.js';
+          script.onload = () => {
+            new (window as any).PagefindUI({ element: '#search', showSubResults: true, resetStyles: false });
+            setTimeout(() => {
+              const input = document.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
+              if (input) input.placeholder = 'Search';
+            }, 50);
+            focusInput();
+          };
+          document.head.appendChild(script);
+        } else {
+          focusInput();
+        }
+      }
+
+      function focusInput() {
+        setTimeout(() => {
+          searchOverlay?.querySelector<HTMLInputElement>('input[type="text"]')?.focus();
+        }, 60);
+      }
+
+      function closeSearch() {
+        if (!searchOverlay) return;
+        searchOverlay.hidden = true;
+        document.body.style.overflow = '';
+        searchToggle?.setAttribute('aria-expanded', 'false');
+      }
+
+      searchToggle?.addEventListener('click', openSearch);
+      searchOverlay?.addEventListener('click', e => { if (e.target === searchOverlay) closeSearch(); });
+
+      document.addEventListener('keydown', e => {
+        if (!searchOverlay) return;
+        if (e.key === 'Escape' && !searchOverlay.hidden) { closeSearch(); return; }
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+      });
+    </script>
     <script is:inline>
-      new PagefindUI({ element: '#search', showSubResults: true });
       // Hoist sub-section nav before footnotes when both are present
       const nav = document.querySelector('nav[aria-label="Sub-section navigation"]');
       const footnotes = document.querySelector('[data-footnotes]');

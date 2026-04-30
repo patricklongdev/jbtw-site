@@ -17,7 +17,7 @@ body {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 0.5rem 1.5rem;
   padding: 1rem 2rem;
@@ -73,7 +73,7 @@ body {
 
 .site-nav__links {
   list-style: none;
-  margin: 0;
+  margin: 0 0 0 auto;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
@@ -110,6 +110,7 @@ body {
 
   .site-nav__links {
     display: none;
+    margin-left: 0;
     position: absolute;
     top: 100%;
     left: 0;
@@ -337,10 +338,12 @@ main > ol > li > ol {
 /* ── Pagefind UI theme ──────────────────────────────────────────────── */
 :root {
   --pagefind-ui-scale: 0.9;
-  --pagefind-ui-primary: #999;
+  --pagefind-ui-primary: #1a4a7a;
   --pagefind-ui-text: #1a1a1a;
   --pagefind-ui-background: #fafaf8;
   --pagefind-ui-border: #ddd;
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 4px;
   --pagefind-ui-tag: #eef3f9;
   --pagefind-ui-font: system-ui, -apple-system, sans-serif;
 }
@@ -351,7 +354,26 @@ main > ol > li > ol {
   outline: 1px solid #bbb !important;
 }
 .pagefind-ui__search-clear { display: none !important; }
-.pagefind-ui__filter-panel { border: none !important; padding: 0 0.1rem !important; }
+
+/* Filter panel */
+.pagefind-ui__filter-panel { border: none !important; padding: 0 !important; }
+.pagefind-ui__filter-block {
+  border-bottom-color: #eee !important;
+  padding-top: 0.6rem !important;
+  padding-bottom: 0.6rem !important;
+}
+.pagefind-ui__filter-name {
+  font-size: calc(13px * var(--pagefind-ui-scale)) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: #555 !important;
+  height: auto !important;
+}
+.pagefind-ui__filter-label {
+  font-size: calc(14px * var(--pagefind-ui-scale)) !important;
+  color: #333 !important;
+}
 
 /* ── Homepage ───────────────────────────────────────────────────────── */
 .home-hero {
