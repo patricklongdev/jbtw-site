@@ -354,6 +354,7 @@ main > ol > li > ol {
   outline: 1px solid #bbb !important;
 }
 .pagefind-ui__search-clear { display: none !important; }
+.pagefind-ui__result-thumb { display: none !important; }
 
 /* Filter panel */
 .pagefind-ui__filter-panel { border: none !important; padding: 0 !important; }
