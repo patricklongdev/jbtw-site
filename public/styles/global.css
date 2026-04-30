@@ -1,5 +1,6 @@
 /* ── Reset ──────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
 
 /* ── Base ───────────────────────────────────────────────────────────── */
 html { font-size: 18px; }
@@ -100,9 +101,11 @@ body {
     align-items: center;
   }
 
+  .site-nav__search { margin-left: auto; }
+
   .site-nav__burger {
     display: flex;
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .site-nav__links {
@@ -293,8 +296,62 @@ main > ol > li > ol {
   margin-bottom: 0.75rem;
 }
 
-/* ── Pagefind search ────────────────────────────────────────────────── */
-#search { margin-bottom: 0.75rem; }
+/* ── Search toggle button ───────────────────────────────────────────── */
+.site-nav__search {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #333;
+  line-height: 0;
+}
+.site-nav__search:hover { color: #1a4a7a; }
+
+/* ── Search overlay ─────────────────────────────────────────────────── */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,26,26,0.55);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10vh 1.5rem 0;
+}
+
+.search-modal {
+  background: #fafaf8;
+  width: 100%;
+  max-width: 38rem;
+  border-radius: 6px;
+  padding: 1.5rem;
+  position: relative;
+  max-height: 78vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+
+/* ── Pagefind UI theme ──────────────────────────────────────────────── */
+:root {
+  --pagefind-ui-scale: 0.9;
+  --pagefind-ui-primary: #999;
+  --pagefind-ui-text: #1a1a1a;
+  --pagefind-ui-background: #fafaf8;
+  --pagefind-ui-border: #ddd;
+  --pagefind-ui-tag: #eef3f9;
+  --pagefind-ui-font: system-ui, -apple-system, sans-serif;
+}
+
+.pagefind-ui__search-input { caret-color: #1a1a1a; }
+.pagefind-ui__search-input:focus {
+  border-color: #bbb !important;
+  outline: 1px solid #bbb !important;
+}
+.pagefind-ui__search-clear { display: none !important; }
+.pagefind-ui__filter-panel { border: none !important; padding: 0 0.1rem !important; }
 
 /* ── Homepage ───────────────────────────────────────────────────────── */
 .home-hero {
